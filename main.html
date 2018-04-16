@@ -867,20 +867,27 @@ function playerMove(){
 	
 	if (onPlatform === false || Player1.jumpSpeed != 0) {
 		moveY = true;
+	} else {
+		moveY = false;
 	}
-	if (Player1.Speed != 0) {
+	console.log (Player1.speed);
+	console.log (Player1.x < Player1.w - 100);
+	
+	if ( (Player1.speed < 0 && Player1.x > 0) || (Player1.speed > 0 && Player1.x < WIDTH - Player1.w) ) {
 		moveX = true;
+	} else {
+		moveX = false;
 	}
-	if (moveY === true || moveX === true) {
+	
+	if (moveX) {
 		Player1.x += Player1.speed;
-		
+	}
+	
+	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
 		if (onPlatform === false) {
 			Player1.y += 4;
 		}
-		
-		console.log (Player1.jumpSpeed);
-		console.log(onPlatform);
 	}
 	
 	return false;
