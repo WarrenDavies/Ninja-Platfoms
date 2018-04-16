@@ -575,7 +575,7 @@ function Player() {
 }
 var Player1 = new Player();
 updateCamera();
-
+console.log(Player1);
 
 function clear(c) {
 	c.clearRect(0, 0, WIDTH, HEIGHT);
@@ -825,16 +825,16 @@ function playerMove(){
 	}
 	
 	if (jumping) {
-		Player1.jumpSpeed = 7;
+		Player1.jumpSpeed = 10;
 		
 		if (jumped > (Player1.jumpHeight * .5)) {
-			Player1.jumpSpeed = 7;
+			Player1.jumpSpeed = 10;
 		}
 		if (jumped > (Player1.jumpHeight * .7)) {
-			Player1.jumpSpeed = 6;
+			Player1.jumpSpeed = 8;
 		}
 		if (jumped > (Player1.jumpHeight * .85)) {
-			Player1.jumpSpeed = 5.5;
+			Player1.jumpSpeed = 6;
 		}
 		if (jumped > (Player1.jumpHeight * 1 )) {
 			Player1.jumpSpeed = 5;
