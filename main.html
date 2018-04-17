@@ -75,7 +75,8 @@ var platformCollision = false;
 var theCoins = [];
 var coinsCollected = 0;
 var spliced = 0;
-
+var theBullets = [];
+var mouse = { x: 0, y: 0, };
 
 function badGuy() {
 	this.x = 700;
@@ -92,35 +93,12 @@ theBadGuys.push({
 	y:780,
 	w:50,
 	h:50,
+	health: 3,
 	maxSpeed:4,
 	speed:1,
 	border:'red',
 	fill:'red'
 }); // first one
-
-theBadGuys.push({
-	x:1600,
-	y:700,
-	w:50,
-	h:50,
-	maxSpeed:4,
-	speed:1,
-	border:'red',
-	fill:'red'
-}); // near vertical wall
-
-theBadGuys.push({
-	x:1400,
-	y:900,
-	w:50,
-	h:50,
-	maxSpeed:4,
-	speed:1,
-	border:'red',
-	fill:'red'
-}); // below vertical wall
-
-
 
 
 
@@ -554,12 +532,73 @@ function checkCoinCollision() {
 	}
 }
 
+function createBullet(targetX, targetY, shooterX, shooterY) {
+	var deltaX = targetX - shooterX;
+	var deltaY = targetY - shooterY;
+	var angle = Math.atan2(deltaY, deltaX);
+	var xTarget = Math.cos(angle);
+	var yTarget = Math.sin(angle);
+	theBullets.push( { 
+		originX: shooterX,
+		originY: shooterY,
+		x: shooterX,
+		y: shooterY,
+		w: 2,
+		h: 2,
+		power: 1,
+		speed: 7,
+		xTarget: xTarget,
+		yTarget: yTarget,
+		color: "black",
+	});
+}
+
+function updateBullets() {
+	theBullets.forEach(function(i, j) {
+		if (i.x > WIDTH || i.x < 0 || i.y < i.originY - 1200 || i.y > i.originY + 1200) {
+			theBullets.splice(j, 1);
+		} 
+		theBadGuys.forEach(function(k, l) {
+			if (collidesObjects(i, k)) {
+				k.health -= i.power;
+				theBullets.splice(j, 1);
+				if (k.health < 1) {
+					theBadGuys.splice(l, 1);
+				}
+			}
+		});
+		thePlatforms.forEach(function(k, l) {
+			if (collidesObjects(i, k)) {
+				theBullets.splice(j, 1);
+			}
+		});
+		i.x += i.xTarget * i.speed;
+		i.y += i.yTarget * i.speed;
+	});
+}
+
+function drawBullets() {
+	c.beginPath();
+	theBullets.forEach(function(i, j) {
+		c.fillRect(i.x, i.y - camera.y, i.w, i.h, i.color);
+	});
+	if (theBullets[0]) {
+		/*c.fillText(theBullets[theBullets.length - 1].x,100,100);
+		c.fillText(theBullets[theBullets.length - 1].y,100,150);
+		c.fillText(theBullets[theBullets.length - 1].xTarget,100,200);
+		c.fillText(theBullets[theBullets.length - 1].yTarget,100,250);
+		c.fillText(theBadGuys[theBadGuys.length - 1].health,100,300); */
+	}
+}
+
 /////////////////////////////////////
 /////////////////////////////////////
 // drawing function / game loop//////
 /////////////////////////////////////
 /////////////////////////////////////
 function mainDraw(canvas, message) {
+
+
 
 // clear canvas and draw background
 clear(c);  
@@ -585,7 +624,16 @@ drawMap();
 drawHUD();
 drawPlatforms();
 drawPlayer();
+
+// bullets
+updateBullets();
+drawBullets();
+
+// bad guys
 drawBadGuys();
+
+
+// coins
 drawCoins();
 checkCoinCollision();
 // check the player is on a platform
@@ -788,9 +836,24 @@ canvas.addEventListener("keyup", function (e) {
 	keyUpHolder = keys2[e.keyCode];
 });
 
+canvas.addEventListener('mousemove', mouseMove, true);
+
 canvas.addEventListener("click", function() {
-	
+	createBullet(mouse.x + camera.x, mouse.y + camera.y, Player1.x + (Player1.w / 2), Player1.y + (Player1.h / 2)  );
 });
+
+// Detect mouse movement and assign to mouseX, mouseY
+function mouseMove(e) {
+    if (e.offsetX) {
+        mouse.x = e.offsetX;
+        mouse.y = e.offsetY;
+    }
+    else if (e.layerX) {
+        mouse.x = e.layerX;
+        mouse.y = e.layerY;
+    }
+}
+
 
 
 
