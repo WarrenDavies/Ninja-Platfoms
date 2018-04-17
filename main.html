@@ -342,25 +342,6 @@ thePlatforms.push({
 	borderWidth: 0
 });
 
-thePlatforms.push({
-	x:1900,
-	y:830,
-	w:840,
-	h:400,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:1900,
-	y:850,
-	w:840,
-	h:400,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});
-// /ground
 
 thePlatforms.push({
 	x:-20,
@@ -380,15 +361,8 @@ thePlatforms.push({
 	border:'green',
 	borderWidth: 0
 });
-thePlatforms.push({
-	x:-20,
-	y:480,
-	w:20,
-	h:430,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});//wall
+
+
 
 thePlatforms.push({
 	x:600,
@@ -408,15 +382,6 @@ thePlatforms.push({
 	border:'green',
 	borderWidth: 0
 });
-thePlatforms.push({
-	x:800,
-	y:610,
-	w:20,
-	h:250,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});// wall
 
 
 thePlatforms.push({
@@ -438,99 +403,6 @@ thePlatforms.push({
 	borderWidth: 0
 });
 
-thePlatforms.push({
-	x:1200,
-	y:600,
-	w:200,
-	h:30,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:1200,
-	y:600,
-	w:200,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-
-
-
-thePlatforms.push({
-	x:1400,
-	y:950,
-	w:200,
-	h:30,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:1400,
-	y:950,
-	w:200,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-
-
-
-
-thePlatforms.push({
-	x:1600,
-	y:750,
-	w:200,
-	h:30,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:1600,
-	y:750,
-	w:200,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:1780,
-	y:250,
-	w:20,
-	h:520,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-}); // vertical wall
-
-thePlatforms.push({
-	x:1900,
-	y:500,
-	w:20,
-	h:200,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-}); //wall enclosing coin
-
-thePlatforms.push({
-	x:1800,
-	y:500,
-	w:100,
-	h:20,
-	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
-}); 
-
-
-// /ground
 
 
 jumpUp = new Image();
@@ -801,9 +673,12 @@ function playerMove(){
 
 			console.log("Platform Collision");
 			Player1.speed = 0;
-			Player1.jumpSpeed = 0;
-			jumping = false;
-			platformCollision = true;
+			
+			if (Player1.x < i.x + i.w && Player1.x + Player1.w > i.x) {
+				Player1.jumpSpeed = 0;
+				jumping = false;
+				platformCollision = true;
+			}
 		}
 	
 	});
