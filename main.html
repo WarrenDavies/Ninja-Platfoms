@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="map.js" type="text/javascript"></script>
+
 <style>
 body{
 margin:0;
@@ -58,10 +58,6 @@ var thePlatforms = [];
 var e = 0;
 var camera = {x: 0, y: 0, w: 800, h: 600};
 var tileSize = 50;
-var mapSize = {
-		h: (map.length * tileSize),
-		w: (map[0].length * tileSize),
-	}
 
 
 var platformCollision = true;
@@ -235,20 +231,11 @@ thePlatforms.push({
 	y:830,
 	w:840,
 	h:400,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-thePlatforms.push({
-	x:-20,
-	y:850,
-	w:840,
-	h:400,
+	type: "ground",
 	fill:'#6B2400',
-	border:'#6B2400',
-	borderWidth: 0
+	fillTop: 'green',
+	borderWidth: 0,
 });
-
 
 thePlatforms.push({
 	x:-20,
@@ -319,20 +306,7 @@ function updateCamera() {
 	camera.y = Player1.y + (Player1.h / 2) - (camera.h / 2);
 }
 
-function drawMap() {
-	var onXTile = Math.floor((camera.x + (camera.w / 2)) / tileSize);
-	var onYTile = Math.floor((camera.y + (camera.h / 2)) / tileSize);
-	c.beginPath();
-		for (j = onYTile - 13; j < onYTile + 13; j++ ) {
-			for (l = onXTile - 17; l < onXTile + 17; l++) {
-				if (j >= 0 && l >= 0 && j < map.length && l < map[j].length) {
-				//c.fillStyle = map[j][l];
-				c.fillStyle = "#3399FF";
-				c.fillRect(l * tileSize - camera.x, j * tileSize - camera.y, tileSize, tileSize);
-				} // check tile is in bounds
-			} // for loop - x axis
-		} // for loop - y axis
-	}
+
 	
 	
 function Player() {
@@ -371,14 +345,16 @@ function drawCoins() {
 function drawPlatforms() {
 	thePlatforms.forEach(function(i,j){
 		c.beginPath();
-		c.save();
-		c.fillStyle = i.fill;
 		c.lineWidth = i.borderWidth;
 		c.strokeStyle = i.border;
-		c.rect(i.x - camera.x, i.y - camera.y, i.w, i.h);  
-		c.stroke();
-		c.fill();
-		c.restore();
+		c.fillStyle = i.fill;
+		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
+		if (i.type === "ground") {
+		console.log("got here");
+			c.fillStyle = i.fillTop;
+			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, 20); 
+		}
+		
 		c.closePath();
 	});
 }
@@ -520,11 +496,19 @@ function drawBullets() {
 	}
 }
 
+
 /////////////////////////////////////
 /////////////////////////////////////
 // drawing function / game loop//////
 /////////////////////////////////////
 /////////////////////////////////////
+var sunset = c.createRadialGradient(400,100,5,400,100,50);
+sunset.addColorStop(0,"white");
+sunset.addColorStop(0.1,"white");
+sunset.addColorStop(0.6,"yellow");
+sunset.addColorStop(0.7,"cyan");
+sunset.addColorStop(1,"cyan");
+
 function mainDraw(canvas, message) {
 
 
@@ -534,7 +518,7 @@ clear(c);
 
 c.beginPath();
 
-c.fillStyle = "#3399FF";
+c.fillStyle = sunset;
 c.strokeStyle = "black";
 c.rect(0,0,800,600);
 c.fill();
@@ -547,10 +531,9 @@ c.closePath();
 // detect player movement
 playerMove();
 updateCamera();
-drawMap();
 
 // draw player, platform, bad guys, coins
-drawHUD();
+
 drawPlatforms();
 drawPlayer();
 
@@ -568,6 +551,7 @@ checkCoinCollision();
 // check the player is on a platform
 checkPlatform();
 
+drawHUD();
 
 
 ///////////////////////////////////////
