@@ -502,12 +502,18 @@ function drawBullets() {
 // drawing function / game loop//////
 /////////////////////////////////////
 /////////////////////////////////////
-var sunset = c.createRadialGradient(400,100,5,400,100,50);
-sunset.addColorStop(0,"white");
-sunset.addColorStop(0.1,"white");
-sunset.addColorStop(0.6,"yellow");
-sunset.addColorStop(0.7,"cyan");
-sunset.addColorStop(1,"cyan");
+
+
+var sunset = {
+	y: 100,
+	size: 50,
+	gradient: c.createRadialGradient(400,50,5,400,50,50),
+}
+sunset.gradient.addColorStop(0,"white");
+sunset.gradient.addColorStop(0.1,"white");
+sunset.gradient.addColorStop(0.6,"yellow");
+sunset.gradient.addColorStop(0.7,"#3399FF");
+sunset.gradient.addColorStop(1,"#3399FF");
 
 function mainDraw(canvas, message) {
 
@@ -518,7 +524,7 @@ clear(c);
 
 c.beginPath();
 
-c.fillStyle = sunset;
+c.fillStyle = sunset.gradient;
 c.strokeStyle = "black";
 c.rect(0,0,800,600);
 c.fill();
