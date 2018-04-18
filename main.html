@@ -232,8 +232,10 @@ thePlatforms.push({
 	w:840,
 	h:400,
 	type: "ground",
+	location: "left",
 	fill:'#6B2400',
 	fillTop: 'green',
+	fillTopHeight: 20,
 	borderWidth: 0,
 });
 
@@ -242,60 +244,43 @@ thePlatforms.push({
 	y:700,
 	w:200,
 	h:30,
+	type: "ground",
+	location: "left",
 	fill:'#6B2400',
 	border:'#6B2400',
-	borderWidth: 0
+	fillTop: 'green',
+	fillTopHeight: 10,
+	borderWidth: 0,
 });
-thePlatforms.push({
-	x:-20,
-	y:700,
-	w:200,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-
-
 
 thePlatforms.push({
 	x:600,
 	y:600,
 	w:220,
 	h:30,
+	type: "ground",
+	location: "right",
 	fill:'#6B2400',
 	border:'#6B2400',
-	borderWidth: 0
+	fillTop: 'green',
+	fillTopHeight: 10,
+	borderWidth: 0,
 });
-thePlatforms.push({
-	x:600,
-	y:599,
-	w:220,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
-
 
 thePlatforms.push({
 	x:-20,
 	y:400,
 	w:200,
 	h:30,
+	type: "ground",
+	location: "left",
 	fill:'#6B2400',
 	border:'#6B2400',
-	borderWidth: 0
+	fillTop: 'green',
+	fillTopHeight: 10,
+	borderWidth: 0,
 });
-thePlatforms.push({
-	x:-20,
-	y:400,
-	w:200,
-	h:10,
-	fill:'green',
-	border:'green',
-	borderWidth: 0
-});
+
 
 
 
@@ -321,6 +306,7 @@ function Player() {
 	this.jumpHeight = 500;
 	this.momentum = 'none';
 	this.fill = 'blue';
+	this.onPlatform = -1;
 }
 var Player1 = new Player();
 updateCamera();
@@ -350,9 +336,8 @@ function drawPlatforms() {
 		c.fillStyle = i.fill;
 		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 		if (i.type === "ground") {
-		console.log("got here");
 			c.fillStyle = i.fillTop;
-			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, 20); 
+			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
 		}
 		
 		c.closePath();
@@ -408,15 +393,131 @@ function collidesSpecific(ax, ay, aw, ah, bx, by, bw, bh) {
 
 // collision detection between player and platforms
 function checkPlatform() {
+	var onPlatform = -1;
 	thePlatforms.forEach ( function(i, j) {
-		if (collidesSpecific(i, Player1)) {
-			onPlatform = true;
-		} else {
-			onPlatform = false;
-			Player1.fill = 'blue';
+		if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				
+			onPlatform = j;
+			jumped = 0;
+			jumping = false;
+			Player1.y = i.y - Player1.h;
+			
+			
+			
+			if (Player1.speed === 0) {
+				if (i.x + i.w < Player1.x + (Player1.w / 2) || i.x > Player1.x + (Player1.w / 2) ) {
+					Player1.fill = 'orange';
+				} else {
+					Player1.fill = 'blue';
+				}
+			}
 		}
 	});
+	
+	if (onPlatform > -1) {
+		Player1.onPlatform = onPlatform;
+		if (Player1.onPlatform >= thePlatforms.length - 3) {
+			pushPlatforms();
+		}
+	} else {
+		Player1.onPlatform = -1;
+	}
+	
 //c.fillText("onPlatform = " + onPlatform, 500, 120);	
+}
+
+
+/// jumping from first, inside that is jumping to
+var platformHeightRanges = {
+	left: {
+		left: {
+			x: 0,
+			y: 200,
+		},
+		middle: {
+			x: 300,
+			y: 200,
+		},
+		right: {
+			x: 600,
+			y: 200,
+		},
+	},
+	middle: {
+		left: {
+			x: 0,
+			y: 200,
+		},
+		middle: {
+			x: 300,
+			y: 200,
+		},
+		right: {
+			x: 600,
+			y: 200,
+		},
+	},
+	right: {
+		left: {
+			x: 0,
+			y: 200,
+		},
+		middle: {
+			x: 300,
+			y: 200,
+		},
+		right: {
+			x: 600,
+			y: 200,
+		},
+	},
+}
+var g = "left";
+var h = "right";
+console.log(platformHeightRanges[g][h].x);
+
+function getHeightRange() {
+	var currentTopPlatformHeight = thePlatforms[thePlatforms.length - 1].y;
+	var currentPlatformLocation = thePlatforms[thePlatforms.length - 1].location
+	var locationChooser = Math.ceil(Math.random() * 3);
+	var targetPlatformLocation;
+	switch (locationChooser) {
+		case 1:
+			targetPlatformLocation = "left";
+			break;
+		case 2:
+			targetPlatformLocation = "middle";
+			break;	
+		case 3:
+			targetPlatformLocation = "right";
+			break;
+	}
+	console.log(currentPlatformLocation);
+	return { 
+		x: platformHeightRanges[currentPlatformLocation][targetPlatformLocation].x,
+		y: thePlatforms[thePlatforms.length - 1].y - platformHeightRanges[currentPlatformLocation][targetPlatformLocation].y,
+		location: targetPlatformLocation,
+	}
+	
+}
+
+function pushPlatforms() {
+	for (i = 0; i < 3; i++) {
+		var newPlatform = getHeightRange();
+		thePlatforms.push({
+			x: newPlatform.x,
+			y: newPlatform.y,
+			w: 220,
+			h: 30,
+			type: "ground",
+			location: newPlatform.location,
+			fill: '#6B2400',
+			border: '#6B2400',
+			fillTop: 'green',
+			fillTopHeight: 10,
+			borderWidth: 0,
+		});	
+	}
 }
 
 function drawHUD() {
@@ -555,7 +656,7 @@ drawBadGuys();
 drawCoins();
 checkCoinCollision();
 // check the player is on a platform
-checkPlatform();
+//checkPlatform();
 
 drawHUD();
 
@@ -613,25 +714,8 @@ function playerMove(){
 	
 
 	
-	// check if on Platform
-	thePlatforms.forEach ( function(i, j) {
-		if (collidesSpecific (Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-			onPlatform = true;
-			jumped = 0;
-			jumping = false;
-			console.log("We're on a platform");
-			Player1.y = i.y - Player1.h;
-			if (Player1.speed === 0) {
-				if (i.x + i.w < Player1.x + (Player1.w / 2) || i.x > Player1.x + (Player1.w / 2) ) {
-					Player1.fill = 'orange';
-				} else {
-				Player1.fill = 'blue';
-				}
-			}
-		} else {
-		
-		}
-	});
+	checkPlatform();
+	
 	
 		// check Platform collision
 	platformCollision = false;
@@ -651,7 +735,8 @@ function playerMove(){
 	});
 		
 	if (keys[87]){
-		if (onPlatform === true) {
+		console.log(Player1.onPlatform);
+		if (Player1.onPlatform > -1) {
 			jumping = true;
 		}
 	} 
@@ -707,13 +792,13 @@ function playerMove(){
 	
 	
 	
-	if (onPlatform === false || Player1.jumpSpeed != 0) {
+	if (Player1.onPlatform === -1 || Player1.jumpSpeed != 0) {
 		moveY = true;
 	} else {
 		moveY = false;
 	}
-	console.log (Player1.speed);
-	console.log (Player1.x < Player1.w - 100);
+	//console.log (Player1.speed);
+	//console.log (Player1.x < Player1.w - 100);
 	
 	if ( (Player1.speed < 0 && Player1.x > 0) || (Player1.speed > 0 && Player1.x < WIDTH - Player1.w) ) {
 		moveX = true;
@@ -727,7 +812,7 @@ function playerMove(){
 	
 	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
-		if (onPlatform === false) {
+		if (Player1.onPlatform === -1) {
 			Player1.y += 4;
 		}
 	}
