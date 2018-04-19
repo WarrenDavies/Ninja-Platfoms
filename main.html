@@ -84,18 +84,22 @@ function badGuy() {
 	this.fill = 'blue';
 }
 
-theBadGuys.push({
-	x:700,
-	y:780,
-	w:50,
-	h:50,
-	health: 3,
-	maxSpeed:4,
-	speed:1,
-	border:'red',
-	fill:'red'
-}); // first one
-
+function pushBadGuy(platform) {
+	theBadGuys.push({
+		x: thePlatforms[platform].x + (thePlatforms[platform].w / 2) - 25,
+		y: thePlatforms[platform].y - 50,
+		w: 50,
+		h: 50,
+		onPlatform: platform,
+		leftLimit: thePlatforms[platform].x,
+		rightLimit: thePlatforms[platform].x + thePlatforms[platform].w,
+		health: 3,
+		maxSpeed: 4,
+		speed: 1,
+		border:' red',
+		fill: 'red'
+	}); 
+}
 
 function multipleCoinPush(x, y, coinsToPush) {
 	var distanceFromLeft = 30;
@@ -406,6 +410,11 @@ function pushPlatforms() {
 			fillTopHeight: 10,
 			borderWidth: 0,
 		});	
+		if (Math.ceil(Math.random()*2) === 1) {
+			multipleCoinPush(newPlatform.x, newPlatform.y, 3);
+		} else {
+			pushBadGuy(thePlatforms.length - 1);
+		}
 	}
 }
 
@@ -438,10 +447,10 @@ function createBullet(targetX, targetY, shooterX, shooterY) {
 		originY: shooterY,
 		x: shooterX,
 		y: shooterY,
-		w: 3,
-		h: 3,
+		w: 5,
+		h: 5,
 		power: 1,
-		speed: 7,
+		speed: 10,
 		xTarget: xTarget,
 		yTarget: yTarget,
 		color: "black",
