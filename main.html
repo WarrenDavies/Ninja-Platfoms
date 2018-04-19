@@ -97,137 +97,30 @@ theBadGuys.push({
 }); // first one
 
 
+function multipleCoinPush(x, y, coinsToPush) {
+	var distanceFromLeft = 30;
+	var spacer = 50;
+	for (i = x + distanceFromLeft; i < x + (spacer * 3); i += spacer) {
+		theCoins.push({
+			x: i,
+			y: y -50,
+			w: 45,
+			h: 45,
+			fill:'yellow',
+			border:'yellow',
+			borderWidth: 0
+		});
+	}
+	
+}
 
-// triple coin batch
-theCoins.push({
-	x:30,
-	y:780,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:80,
-	y:780,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:130,
-	y:780,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-// triple coin batch
-theCoins.push({
-	x:30,
-	y:650,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:80,
-	y:650,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:130,
-	y:650,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-// triple coin batch
-theCoins.push({
-	x:610,
-	y:540,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:660,
-	y:540,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:710,
-	y:540,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-// triple coin batch
-theCoins.push({
-	x:20,
-	y:360,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:70,
-	y:360,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
-
-theCoins.push({
-	x:120,
-	y:360,
-	w:45,
-	h:45,
-	fill:'yellow',
-	border:'yellow',
-	borderWidth: 0
-});
 
 
 // push platforms. Might need to have separate functions to load levels later.	  
 	  
 // the ground
 thePlatforms.push({
-	x:-20,
+	x:0,
 	y:830,
 	w:840,
 	h:400,
@@ -240,7 +133,7 @@ thePlatforms.push({
 });
 
 thePlatforms.push({
-	x:-20,
+	x:0,
 	y:700,
 	w:200,
 	h:30,
@@ -268,7 +161,7 @@ thePlatforms.push({
 });
 
 thePlatforms.push({
-	x:-20,
+	x:0,
 	y:400,
 	w:200,
 	h:30,
@@ -281,8 +174,11 @@ thePlatforms.push({
 	borderWidth: 0,
 });
 
-
-
+thePlatforms.forEach(function(i, j) {
+	if (j != 0) {
+		multipleCoinPush(i.x, i.y, 3);
+	}
+});
 
 jumpUp = new Image();
 jumpUp.src = 'jumpUP.png';
@@ -396,14 +292,10 @@ function checkPlatform() {
 	var onPlatform = -1;
 	thePlatforms.forEach ( function(i, j) {
 		if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				
 			onPlatform = j;
 			jumped = 0;
 			jumping = false;
 			Player1.y = i.y - Player1.h;
-			
-			
-			
 			if (Player1.speed === 0) {
 				if (i.x + i.w < Player1.x + (Player1.w / 2) || i.x > Player1.x + (Player1.w / 2) ) {
 					Player1.fill = 'orange';
@@ -413,7 +305,6 @@ function checkPlatform() {
 			}
 		}
 	});
-	
 	if (onPlatform > -1) {
 		Player1.onPlatform = onPlatform;
 		if (Player1.onPlatform >= thePlatforms.length - 3) {
@@ -422,8 +313,6 @@ function checkPlatform() {
 	} else {
 		Player1.onPlatform = -1;
 	}
-	
-//c.fillText("onPlatform = " + onPlatform, 500, 120);	
 }
 
 
