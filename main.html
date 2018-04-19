@@ -73,6 +73,37 @@ var coinsCollected = 0;
 var spliced = 0;
 var theBullets = [];
 var mouse = { x: 0, y: 0, };
+var sun = {
+	xPosition: 400,
+	yPosition: 50,
+	sizeStart: 5,
+	sizeEnd: 50,
+	timer: 0,
+}
+var sky = {
+	status: "day",
+	day: {
+		r: 51,
+		g: 153,
+		b: 255,
+	},
+	sunset: {
+		r: 255,
+		g: 165,
+		b: 0,
+	},
+	night: {
+		r: 19,
+		g: 24,
+		b: 98,
+	},
+	current: {
+		r: 51,
+		g: 153,
+		b: 255,
+	},
+
+}
 
 function badGuy() {
 	this.x = 700;
@@ -234,9 +265,15 @@ function drawPlatforms() {
 		c.lineWidth = i.borderWidth;
 		c.strokeStyle = i.border;
 		c.fillStyle = i.fill;
+		if (sky.status === "sunset") {
+			c.fillStyle = "black";
+		}
 		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 		if (i.type === "ground") {
 			c.fillStyle = i.fillTop;
+			if (sky.status === "sunset") {
+				c.fillStyle = "black";
+			}	
 			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
 		}
 		
@@ -496,39 +533,92 @@ function drawBullets() {
 }
 
 
+
+
+function updateBackground() {
+	sun.timer += 0.0005;
+	sun.yPosition += sun.timer;
+	if (sun.yPosition < 400) {
+		sky.status = "day";
+	}
+	if (sun.yPosition < 400 && sun.yPosition > 300 && sky.current.g > 00) {
+		sky.current.g -= 3;
+	}
+
+	if (sun.yPosition >= 400) {
+		sun.sizeStart += .1;
+		sun.sizeEnd += .1;
+		sky.status = "sunset";
+	}
+	
+	
+	for (var rgbCurrent in sky.current) {
+	//if (rgbCurrent = "r") {
+		console.log(rgbCurrent);
+		console.log("current: " + sky.current[rgbCurrent]);
+		console.log(sky.status + ": " + sky[sky.status][rgbCurrent]);
+	//}	
+		if (sky.current[rgbCurrent] > sky[sky.status][rgbCurrent]) {
+			sky.current[rgbCurrent] -= 2;
+			if (rgbCurrent === "b" && sky.status === "sunset") {
+				//sky.current[rgbCurrent] = 0;
+			}
+		}	
+		if (sky.current[rgbCurrent] < sky[sky.status][rgbCurrent]) {
+			sky.current[rgbCurrent] += 2;
+		}	
+		if (sky.current[rgbCurrent] - sky[sky.status][rgbCurrent] === 1 || sky.current[rgbCurrent] - sky[sky.status][rgbCurrent] === -1) {
+			sky.current[rgbCurrent] = sky[sky.status][rgbCurrent];
+		}
+	}
+	
+	
+	sunset = {
+		y: 100,
+		size: 50,
+		gradient: c.createRadialGradient(sun.xPosition,sun.yPosition, sun.sizeStart, sun.xPosition, sun.yPosition, sun.sizeEnd),
+	}
+	sunset.gradient.addColorStop(0,"white");
+	sunset.gradient.addColorStop(0.1,"white");
+	sunset.gradient.addColorStop(0.6,"yellow");
+	//if (sun.yPosition < 400) {
+		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
+		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
+	//} else {
+		//sunset.gradient.addColorStop(0.7,"orange");
+		//sunset.gradient.addColorStop(1,"orange");
+	//}
+}
+
+function drawBackground() {
+	// clear canvas and draw background
+	clear(c);  
+	
+	c.beginPath();
+	c.fillStyle = sunset.gradient;
+	c.strokeStyle = "black";
+	c.rect(0,0,800,600);
+	c.fill();
+	c.stroke();
+	c.closePath();
+}
+
+
+
+
+
 /////////////////////////////////////
 /////////////////////////////////////
 // drawing function / game loop//////
 /////////////////////////////////////
 /////////////////////////////////////
 
-
-var sunset = {
-	y: 100,
-	size: 50,
-	gradient: c.createRadialGradient(400,50,5,400,50,50),
-}
-sunset.gradient.addColorStop(0,"white");
-sunset.gradient.addColorStop(0.1,"white");
-sunset.gradient.addColorStop(0.6,"yellow");
-sunset.gradient.addColorStop(0.7,"#3399FF");
-sunset.gradient.addColorStop(1,"#3399FF");
-
 function mainDraw(canvas, message) {
 
 
+updateBackground();
+drawBackground();
 
-// clear canvas and draw background
-clear(c);  
-
-c.beginPath();
-
-c.fillStyle = sunset.gradient;
-c.strokeStyle = "black";
-c.rect(0,0,800,600);
-c.fill();
-c.stroke();
-c.closePath();
 
 
 
