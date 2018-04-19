@@ -75,10 +75,10 @@ var theBullets = [];
 var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 400,
-	yPosition: 50,
+	yPosition: 150,
 	sizeStart: 5,
-	sizeEnd: 50,
-	timer: 0,
+	sizeEnd: 1500,
+	timer: 0.5,
 }
 var sky = {
 	status: "day",
@@ -536,12 +536,20 @@ function drawBullets() {
 
 
 function updateBackground() {
-	sun.timer += 0.0005;
 	sun.yPosition += sun.timer;
+	if (sun.yPosition > 2000) {
+		sun.yPosition = -300;
+		sun.sizeStart = 5;
+		sun.sizeEnd = 2000;
+	}
+	
+	
+	
+	
 	if (sun.yPosition < 400) {
 		sky.status = "day";
 	}
-	if (sun.yPosition < 400 && sun.yPosition > 300 && sky.current.g > 00) {
+	if (sun.yPosition < 400 && sun.yPosition > 300 && sky.current.g > 0) {
 		sky.current.g -= 3;
 	}
 
@@ -550,19 +558,19 @@ function updateBackground() {
 		sun.sizeEnd += .1;
 		sky.status = "sunset";
 	}
-	
+	if (sun.yPosition >= 800) {
+		//sun.sizeStart -= .3;
+		sun.sizeEnd -= .3;
+		sky.status = "sunset";
+	}
+	console.log(sun.yPosition);
 	
 	for (var rgbCurrent in sky.current) {
-	//if (rgbCurrent = "r") {
 		console.log(rgbCurrent);
 		console.log("current: " + sky.current[rgbCurrent]);
 		console.log(sky.status + ": " + sky[sky.status][rgbCurrent]);
-	//}	
 		if (sky.current[rgbCurrent] > sky[sky.status][rgbCurrent]) {
 			sky.current[rgbCurrent] -= 2;
-			if (rgbCurrent === "b" && sky.status === "sunset") {
-				//sky.current[rgbCurrent] = 0;
-			}
 		}	
 		if (sky.current[rgbCurrent] < sky[sky.status][rgbCurrent]) {
 			sky.current[rgbCurrent] += 2;
@@ -578,12 +586,24 @@ function updateBackground() {
 		size: 50,
 		gradient: c.createRadialGradient(sun.xPosition,sun.yPosition, sun.sizeStart, sun.xPosition, sun.yPosition, sun.sizeEnd),
 	}
-	sunset.gradient.addColorStop(0,"white");
+/*	sunset.gradient.addColorStop(0,"white");
 	sunset.gradient.addColorStop(0.1,"white");
 	sunset.gradient.addColorStop(0.6,"yellow");
 	//if (sun.yPosition < 400) {
 		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
 		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
+		sunset.gradient.addColorStop(0.9,"darkblue"); */
+		
+		sunset.gradient.addColorStop(0,"white");
+	//sunset.gradient.addColorStop(0.0016,"white");
+	sunset.gradient.addColorStop(0.0035,"yellow");
+	//if (sun.yPosition < 400) {
+		sunset.gradient.addColorStop(0.015,"yellow");
+		sunset.gradient.addColorStop(0.023,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
+//		sunset.gradient.addColorStop(0.017,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
+		sunset.gradient.addColorStop(0.9,"darkblue");
+		
+		
 	//} else {
 		//sunset.gradient.addColorStop(0.7,"orange");
 		//sunset.gradient.addColorStop(1,"orange");
