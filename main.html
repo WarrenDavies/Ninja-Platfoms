@@ -267,12 +267,18 @@ function drawPlatforms() {
 		if (sky.status === "sunset") {
 			c.fillStyle = "black";
 		}
+		if (sky.status === "night") {
+			c.fillStyle = "white";
+		}
 		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 		if (i.type === "ground") {
 			c.fillStyle = i.fillTop;
 			if (sky.status === "sunset") {
 				c.fillStyle = "black";
-			}	
+			}
+		if (sky.status === "night") {
+				c.fillStyle = "white";
+		}			
 			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
 		}
 		
