@@ -72,10 +72,11 @@ var theCoins = [];
 var coinsCollected = 0;
 var spliced = 0;
 var theBullets = [];
+var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 400,
-	yPosition: 150,
+	yPosition: 900,
 	sizeStart: 15,
 	sizeEnd: 1000,
 	timer: 0.5,
@@ -318,30 +319,66 @@ function updatePlatformColors() {
 function drawPlatforms() {
 	updatePlatformColors();
 	thePlatforms.forEach(function(i, j){
-		
-		c.beginPath();
-		c.lineWidth = i.borderWidth;
-		c.strokeStyle = i.border;
-		c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b;
-		if (sky.status === "sunset") {
-			//c.fillStyle = "black";
-		}
-		if (sky.status === "night") {
-			//c.fillStyle = "white";
-		}
-		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
-		if (i.type === "ground") {
-			c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;;
+			if ( i.y > camera.y - 50 && i.y < camera.y + camera.h + 50) {
+			c.beginPath();
+			c.lineWidth = i.borderWidth;
+			c.strokeStyle = i.border;
+			c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b;
 			if (sky.status === "sunset") {
 				//c.fillStyle = "black";
+				neonTimer = 0;
 			}
-		if (sky.status === "night") {
+			if (sky.status === "night") {
+				//c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ", 0.2)";
+			}
+			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
+			if (i.type === "ground") {
+				c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
+				if (sky.status === "sunset") {
+					//c.fillStyle = "black";
+				}
+			
+			if (sky.status === "night") {
+				if (neonTimer < 24) {
+					neonTimer += 0.3;
+				}
+				console.log("here");
+				/* c.fillStyle = "rgb(255,105,180)";
+				c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h); */
+				c.shadowBlur = 15;
+				c.shadowColor = "rgb(255,105,180)";
+				//c.globalCompositeOperation = "lighter";
+				c.lineWidth = 1;
+				for (k = 0; k < neonTimer; k += 2) {
+					console.log("hereeeee " + k);
+					//c.lineWidth = k * 2;
+					c.fillStyle = "rgb(255,105,180,0.05)";
+					//c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ", 0.05)";
+					c.fillRect(i.x - camera.x - k, i.y - camera.y - k, i.w + (k * 2), i.h + (k * 2));
+					
+					//if (k === 18) { k -= 2 };
+					//c.moveTo(i.x - camera.x - k, i.y - camera.y - (i.h / 2)) - 50;
+					//c.lineTo(i.x - camera.x - k + i.w, i.y - camera.y - (i.h / 2)) - 50; 
+					//c.stroke();
+				}
+				c.globalCompositeOperation = "lighter";
+				c.fillStyle = "rgb(255,255,255,0.5)";
+				//c.fillStyle = "rgb(255,105,180,0.05)";
+				//c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ", 0.2)";
 				//c.fillStyle = "white";
-		}			
-			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
+				c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
+				c.shadowBlur = 0;
+				
+				c.globalCompositeOperation = "source-over";		
+			}
+			
+			
+			
+				//c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
+			}
+			
+			c.closePath();
 		}
-		
-		c.closePath();
 	});
 }
 
