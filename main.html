@@ -104,6 +104,41 @@ var sky = {
 	},
 }
 
+var platformColors = {
+	status: "day",
+	day: {
+		r: 107,
+		g: 36,
+		b: 0,
+	},
+	dayTop: {
+		r: 0,
+		g: 128,
+		b: 0,
+	},
+	sunset: {
+		r: 0,
+		g: 0,
+		b: 0,
+	},
+	night: {
+		r: 255,
+		g: 255,
+		b: 255,
+	},
+	current: {
+		r: 107,
+		g: 36,
+		b: 0,
+	},
+	currentTop: {
+		r: 0,
+		g: 128,
+		b: 0,
+	},
+}
+
+
 function badGuy() {
 	this.x = 700;
 	this.y = 1000;
@@ -145,7 +180,6 @@ function multipleCoinPush(x, y, coinsToPush) {
 			borderWidth: 0
 		});
 	}
-	
 }
 
 
@@ -258,26 +292,51 @@ function drawCoins() {
 	});
 } 
 
+function updatePlatformColors() {
+	for (var rgbCurrent in platformColors.current) {
+		if (platformColors.current[rgbCurrent] > platformColors[sky.status][rgbCurrent]) {
+			platformColors.current[rgbCurrent] -= 1;
+		}	
+		if (platformColors.current[rgbCurrent] < platformColors[sky.status][rgbCurrent]) {
+			platformColors.current[rgbCurrent] += 1;
+		}	
+	}
+	var topChanger;
+	if (sky.status === "day") {topChanger = "dayTop"}
+	if (sky.status === "sunset") {topChanger = sky.status}
+	if (sky.status === "night") {topChanger = sky.status}
+	for (var rgbCurrent in platformColors.currentTop) {
+		if (platformColors.currentTop[rgbCurrent] > platformColors[topChanger][rgbCurrent]) {
+			platformColors.currentTop[rgbCurrent] -= 1;
+		}	
+		if (platformColors.currentTop[rgbCurrent] < platformColors[topChanger][rgbCurrent]) {
+			platformColors.currentTop[rgbCurrent] += 1;
+		}	
+	}
+}
+
 function drawPlatforms() {
-	thePlatforms.forEach(function(i,j){
+	updatePlatformColors();
+	thePlatforms.forEach(function(i, j){
+		
 		c.beginPath();
 		c.lineWidth = i.borderWidth;
 		c.strokeStyle = i.border;
-		c.fillStyle = i.fill;
+		c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b;
 		if (sky.status === "sunset") {
-			c.fillStyle = "black";
+			//c.fillStyle = "black";
 		}
 		if (sky.status === "night") {
-			c.fillStyle = "white";
+			//c.fillStyle = "white";
 		}
 		c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 		if (i.type === "ground") {
-			c.fillStyle = i.fillTop;
+			c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;;
 			if (sky.status === "sunset") {
-				c.fillStyle = "black";
+				//c.fillStyle = "black";
 			}
 		if (sky.status === "night") {
-				c.fillStyle = "white";
+				//c.fillStyle = "white";
 		}			
 			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.fillTopHeight); 
 		}
