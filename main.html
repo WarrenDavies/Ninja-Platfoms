@@ -76,8 +76,8 @@ var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 400,
 	yPosition: 150,
-	sizeStart: 5,
-	sizeEnd: 1500,
+	sizeStart: 15,
+	sizeEnd: 1000,
 	timer: 0.5,
 }
 var sky = {
@@ -102,7 +102,6 @@ var sky = {
 		g: 153,
 		b: 255,
 	},
-
 }
 
 function badGuy() {
@@ -560,8 +559,13 @@ function updateBackground() {
 	}
 	if (sun.yPosition >= 800) {
 		//sun.sizeStart -= .3;
-		sun.sizeEnd -= .3;
-		sky.status = "sunset";
+		if (sun.sizeEnd >= .3) {
+			sun.sizeEnd -= .3;
+		}		
+	}
+	if (sun.yPosition >= 1000) {
+		//sun.sizeStart -= .3;
+		sky.status = "night";
 	}
 	console.log(sun.yPosition);
 	
@@ -594,7 +598,7 @@ function updateBackground() {
 		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
 		sunset.gradient.addColorStop(0.9,"darkblue"); */
 		
-		sunset.gradient.addColorStop(0,"white");
+		sunset.gradient.addColorStop(0,"yellow");
 	//sunset.gradient.addColorStop(0.0016,"white");
 	sunset.gradient.addColorStop(0.0035,"yellow");
 	//if (sun.yPosition < 400) {
@@ -613,7 +617,6 @@ function updateBackground() {
 function drawBackground() {
 	// clear canvas and draw background
 	clear(c);  
-	
 	c.beginPath();
 	c.fillStyle = sunset.gradient;
 	c.strokeStyle = "black";
