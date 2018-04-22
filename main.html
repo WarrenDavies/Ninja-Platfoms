@@ -75,35 +75,63 @@ var theBullets = [];
 var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
-	xPosition: 400,
-	yPosition: 900,
-	sizeStart: 15,
-	sizeEnd: 1000,
+	xPosition: 300,
+	yPosition: 350,
+	height: 200,
+	width: 200,
+	sizeStart: 10,
+	sizeEnd: 50,
 	timer: 0.5,
 }
+sun.gradient = c.createRadialGradient(sun.xPosition + (sun.height / 2), sun.yPosition + (sun.width / 2), sun.sizeStart, sun.xPosition + (sun.height / 2),sun.yPosition + (sun.width / 2), sun.sizeEnd),
+sun.gradient.addColorStop(0,"yellow");
+sun.gradient.addColorStop(0.0035,"yellow");
+sun.gradient.addColorStop(0.55,"yellow");
+sun.gradient.addColorStop(0.9,"rgb(255,255,0,0)");
+
 var sky = {
-	status: "day",
+	status: {
+		top: "day",
+		bottom: "day",
+		platform: "day",
+	},
 	day: {
 		r: 51,
 		g: 153,
 		b: 255,
 	},
-	sunset: {
+	sunsetOrange: {
 		r: 255,
 		g: 165,
 		b: 0,
 	},
+	
+	sunsetPink: {
+		r: 220,
+		g: 127,
+		b: 127,
+	},
+	sunsetStatus: "not set",
 	night: {
 		r: 19,
 		g: 24,
 		b: 98,
 	},
-	current: {
+	currentBottom: {
 		r: 51,
 		g: 153,
 		b: 255,
 	},
+	currentTop: {
+		r: 51,
+		g: 153,
+		b: 255,
+	},
+	colorStopPosition: [1,1],
 }
+sky.gradient = c.createLinearGradient(0,0,0,600);
+sky.gradient.addColorStop(0,"lightblue");
+sky.gradient.addColorStop(1,"orange");
 
 var platformColors = {
 	status: "day",
@@ -295,17 +323,17 @@ function drawCoins() {
 
 function updatePlatformColors() {
 	for (var rgbCurrent in platformColors.current) {
-		if (platformColors.current[rgbCurrent] > platformColors[sky.status][rgbCurrent]) {
+		if (platformColors.current[rgbCurrent] > platformColors[sky.status.platform][rgbCurrent]) {
 			platformColors.current[rgbCurrent] -= 1;
 		}	
-		if (platformColors.current[rgbCurrent] < platformColors[sky.status][rgbCurrent]) {
+		if (platformColors.current[rgbCurrent] < platformColors[sky.status.platform][rgbCurrent]) {
 			platformColors.current[rgbCurrent] += 1;
 		}	
 	}
 	var topChanger;
-	if (sky.status === "day") {topChanger = "dayTop"}
-	if (sky.status === "sunset") {topChanger = sky.status}
-	if (sky.status === "night") {topChanger = sky.status}
+	if (sky.status.platform === "day") {topChanger = "dayTop"}
+	if (sky.status.platform === "sunset") {topChanger = sky.status.platform}
+	if (sky.status.platform === "night") {topChanger = sky.status.platform}
 	for (var rgbCurrent in platformColors.currentTop) {
 		if (platformColors.currentTop[rgbCurrent] > platformColors[topChanger][rgbCurrent]) {
 			platformColors.currentTop[rgbCurrent] -= 1;
@@ -329,7 +357,7 @@ function drawPlatforms() {
 				neonTimer = 0;
 			}
 			if (sky.status === "night") {
-				//c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ", 0.2)";
+
 			}
 			c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 			if (i.type === "ground") {
@@ -338,7 +366,7 @@ function drawPlatforms() {
 					//c.fillStyle = "black";
 				}
 			
-			if (sky.status === "night") {
+			if (sky.status === "night1111111111") {
 				
 				console.log("here");
 				/* c.fillStyle = "rgb(255,105,180)";
@@ -646,96 +674,122 @@ function drawBullets() {
 
 
 
-function updateBackground() {
+function updateSun() {
+// sun.timer determines how fast the sun moves down the screen by incrementing the sun's y coordinate each frame
 	sun.yPosition += sun.timer;
+	
+// if the sun is beyond y = 2000, put it back above the screen and put the size back to normal. This is basically resetting the sun. Only the top half of the gradient is set to day to give the impression of the morning breaking.
 	if (sun.yPosition > 2000) {
 		sun.yPosition = -300;
-		sun.sizeStart = 5;
-		sun.sizeEnd = 2000;
-	}
-	
-	
-	
-	
-	if (sun.yPosition < 400) {
-		sky.status = "day";
-	}
-	if (sun.yPosition < 400 && sun.yPosition > 300 && sky.current.g > 0) {
-		sky.current.g -= 3;
+		sun.sizeStart = 10;
+		sun.sizeEnd = 50;
+		sky.gradientMidPoint = 1;
+		sky.status.top = "day";
+		sky.status.platform = "day";
+		sky.colorStopPosition[0] = 0;
+		sky.sunsetStatus = "not set";
 	}
 
-	if (sun.yPosition >= 400) {
-		sun.sizeStart += .1;
-		sun.sizeEnd += .1;
-		sky.status = "sunset";
+// The sun will just be coming into the screen as the bottom half of the gradient fades into the day colors. Now we're fully into the daytime
+	if (sun.yPosition > -150 && sun.yPosition < 0) {
+		sky.status.bottom = "day";
 	}
-	if (sun.yPosition >= 800) {
-		//sun.sizeStart -= .3;
-		if (sun.sizeEnd >= .3) {
-			sun.sizeEnd -= .3;
-		}		
-	}
-	if (sun.yPosition >= 1000) {
-		//sun.sizeStart -= .3;
-		sky.status = "night";
-	}
-	console.log(sun.yPosition);
-	
-	for (var rgbCurrent in sky.current) {
-		console.log(rgbCurrent);
-		console.log("current: " + sky.current[rgbCurrent]);
-		console.log(sky.status + ": " + sky[sky.status][rgbCurrent]);
-		if (sky.current[rgbCurrent] > sky[sky.status][rgbCurrent]) {
-			sky.current[rgbCurrent] -= 2;
-		}	
-		if (sky.current[rgbCurrent] < sky[sky.status][rgbCurrent]) {
-			sky.current[rgbCurrent] += 2;
-		}	
-		if (sky.current[rgbCurrent] - sky[sky.status][rgbCurrent] === 1 || sky.current[rgbCurrent] - sky[sky.status][rgbCurrent] === -1) {
-			sky.current[rgbCurrent] = sky[sky.status][rgbCurrent];
-		}
-	}
-	
-	
-	sunset = {
-		y: 100,
-		size: 50,
-		gradient: c.createRadialGradient(sun.xPosition,sun.yPosition, sun.sizeStart, sun.xPosition, sun.yPosition, sun.sizeEnd),
-	}
-/*	sunset.gradient.addColorStop(0,"white");
-	sunset.gradient.addColorStop(0.1,"white");
-	sunset.gradient.addColorStop(0.6,"yellow");
-	//if (sun.yPosition < 400) {
-		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
-		sunset.gradient.addColorStop(0.7,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
-		sunset.gradient.addColorStop(0.9,"darkblue"); */
-		
-		sunset.gradient.addColorStop(0,"yellow");
-	//sunset.gradient.addColorStop(0.0016,"white");
-	sunset.gradient.addColorStop(0.0035,"yellow");
-	//if (sun.yPosition < 400) {
-		sunset.gradient.addColorStop(0.015,"yellow");
-		sunset.gradient.addColorStop(0.023,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
-//		sunset.gradient.addColorStop(0.017,"rgb(" + sky.current.r + "," + sky.current.g + "," + sky.current.b);
-		sunset.gradient.addColorStop(0.9,"darkblue");
-		
-		
-	//} else {
-		//sunset.gradient.addColorStop(0.7,"orange");
-		//sunset.gradient.addColorStop(1,"orange");
+
+// put the gradient start point to the bottom of the screen before reaching y = 400, which will activate the sunset. This is so the gradient can be moved upward gradually as the sun sets. Changing this will have no effect at present as both top and bottom are set to "day".
+	//	if (sun.yPosition < 400 && sun.yPosition > 350 && sky.currentBottom.g > 0) {
+		//sky.currentBottom.g -= 3;
 	//}
+	if (sun.yPosition < 400 && sun.yPosition > 490) {
+		sky.colorStopPosition[0] = 1;
+	}
+	
+// turn sunset on. Start gradually increasing the size of the sun, set the bottom half of the gradient to the sunset color, and move the gradient up the screen.
+	if (sun.yPosition >= 400) {
+		sky.status.platform = "sunset";
+		
+		if (sky.sunsetStatus != "set") {
+			if (Math.floor(Math.random() * 2) === 0) {
+				sky.status.bottom = "sunsetOrange";
+			} else {
+				sky.status.bottom = "sunsetPink";
+			}
+		}
+			sky.sunsetStatus = "set";
+			sun.sizeStart += .1;
+			sun.sizeEnd += .1;
+			if (sky.colorStopPosition[0] > 0.01) {
+				sky.colorStopPosition[0] -= 0.01;
+			}
+		}
+	
+// darkness begins to fall 	
+	if (sun.yPosition >= 800) {
+		sky.status.top = "night";
+	}
+
+// darkness falls completely
+	if (sun.yPosition >= 1000) {
+		sky.status.bottom = "night";
+		sky.status.platform = "night";
+	}
+console.log(sun.yPosition);
+	
+// update the sun object's radial gradient to reflect the above changes
+	sun.gradient = c.createRadialGradient(sun.xPosition + (sun.height / 2), sun.yPosition + (sun.width / 2), sun.sizeStart, sun.xPosition + (sun.height / 2),sun.yPosition + (sun.width / 2), sun.sizeEnd);
+	sun.gradient.addColorStop(0,"yellow");
+	sun.gradient.addColorStop(0.55,"yellow");
+	sun.gradient.addColorStop(0.9,"rgb(255,255,0,0)");
 }
 
+
+function updateSky() {
+/// change the color of the bottom and top halves of the background gradient by changing the rgb values by 2 each frame, according to the status of the relevant sky property. The sky property is determined by the sun position in updateSun()
+// bottom half
+	for (var rgbCurrent in sky.currentBottom) {
+		if (sky.currentBottom[rgbCurrent] > sky[sky.status.bottom][rgbCurrent]) {
+			sky.currentBottom[rgbCurrent] -= 2;
+		}	
+		if (sky.currentBottom[rgbCurrent] < sky[sky.status.bottom][rgbCurrent]) {
+			sky.currentBottom[rgbCurrent] += 2;
+		}	
+		if (sky.currentBottom[rgbCurrent] - sky[sky.status.bottom][rgbCurrent] === 1 || sky.currentBottom[rgbCurrent] - sky[sky.status.bottom][rgbCurrent] === -1) {
+			sky.currentBottom[rgbCurrent] = sky[sky.status.bottom][rgbCurrent];
+		}
+	}
+// top half
+	for (var rgbCurrent in sky.currentTop) {
+		if (sky.currentTop[rgbCurrent] > sky[sky.status.top][rgbCurrent]) {
+			sky.currentTop[rgbCurrent] -= 2;
+		}	
+		if (sky.currentTop[rgbCurrent] < sky[sky.status.top][rgbCurrent]) {
+			sky.currentTop[rgbCurrent] += 2;
+		}	
+		if (sky.currentTop[rgbCurrent] - sky[sky.status.top][rgbCurrent] === 1 || sky.currentTop[rgbCurrent] - sky[sky.status.top][rgbCurrent] === -1) {
+			sky.currentTop[rgbCurrent] = sky[sky.status.top][rgbCurrent];
+		}
+	}
+
+// now actually draw the background gradient
+	sky.gradient = c.createLinearGradient(0, 0, 0, 600);
+	sky.gradient.addColorStop(sky.colorStopPosition[0], "rgb(" + sky.currentTop.r + "," + sky.currentTop.g + "," + sky.currentTop.b);
+	sky.gradient.addColorStop(sky.colorStopPosition[1],"rgb(" + sky.currentBottom.r + "," + sky.currentBottom.g + "," + sky.currentBottom.b);
+}
+
+
 function drawBackground() {
-	// clear canvas and draw background
+// clear canvas
 	clear(c);  
+
+//draw the sky
 	c.beginPath();
-	c.fillStyle = sunset.gradient;
-	c.strokeStyle = "black";
-	c.rect(0,0,800,600);
+	c.fillStyle = sky.gradient;
+	c.rect(0 ,0, 800, 600);
 	c.fill();
-	c.stroke();
-	c.closePath();
+	
+//draw the sun
+	c.fillStyle = sun.gradient;
+	c.rect(sun.xPosition,sun.yPosition,sun.height,sun.width);
+	c.fill();
 }
 
 
@@ -751,7 +805,8 @@ function drawBackground() {
 function mainDraw(canvas, message) {
 
 
-updateBackground();
+updateSun();
+updateSky();
 drawBackground();
 
 
