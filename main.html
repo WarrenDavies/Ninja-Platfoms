@@ -87,7 +87,7 @@ var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 300,
-	yPosition: 300,
+	yPosition: 1200,
 	height: 200,
 	width: 200,
 	sizeStart: 10,
@@ -348,6 +348,7 @@ function updatePlatformColors() {
 	if (sky.status.platform === "day") {topChanger = "dayTop"}
 	if (sky.status.platform === "sunset") {topChanger = sky.status.platform}
 	if (sky.status.platform === "night") {topChanger = sky.status.platform}
+	
 	for (var rgbCurrent in platformColors.currentTop) {
 		if (platformColors.currentTop[rgbCurrent] > platformColors[topChanger][rgbCurrent]) {
 			platformColors.currentTop[rgbCurrent] -= 1;
@@ -381,7 +382,7 @@ function drawPlatforms() {
 					//c.fillStyle = "black";
 				}
 			
-			if (sky.status === "night1111111111") {
+			if (sky.status.platform === "night") {
 				
 				console.log("here");
 				/* c.fillStyle = "rgb(255,105,180)";
@@ -390,8 +391,14 @@ function drawPlatforms() {
 				//c.globalCompositeOperation = "lighter";
 				c.lineWidth = 1;
 				
+				console.log(platformColors.current.g);
+				console.log(platformColors.night.g);
+				
 				if ( platformColors.current.g === platformColors.night.g) {
-					if (neonTimer < 18) {
+				
+					if (sun.yPosition > 1395 && neonTimer > 0) {
+						neonTimer -= 0.2;
+					} else if (neonTimer < 18) {
 						neonTimer += 0.2;
 					}
 					for (k = 0; k < neonTimer; k += 2) {
