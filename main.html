@@ -28,6 +28,9 @@ height:600px;
 // add sprites
 // make bad guys do something
 // add flying bad guys
+// add variation to the types of platforms
+// add the spikes that follow you up
+// every hundred platforms there's a speed chase
 
 
 function init() {
@@ -84,7 +87,7 @@ var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 300,
-	yPosition: 350,
+	yPosition: 300,
 	height: 200,
 	width: 200,
 	sizeStart: 10,
@@ -104,14 +107,19 @@ var sky = {
 		platform: "day",
 	},
 	day: {
-		r: 51,
-		g: 153,
-		b: 255,
+		r: 173,
+		g: 216,
+		b: 230,
 	},
 	sunsetOrange: {
 		r: 255,
 		g: 165,
 		b: 0,
+	},
+	sunsetOrange: {
+		r: 255,
+		g: 204,
+		b: 51,
 	},
 	
 	sunsetPink: {
@@ -135,11 +143,11 @@ var sky = {
 		g: 153,
 		b: 255,
 	},
-	colorStopPosition: [1,1],
+	colorStopPosition: [0,1],
 }
 sky.gradient = c.createLinearGradient(0,0,0,600);
 sky.gradient.addColorStop(0,"lightblue");
-sky.gradient.addColorStop(1,"orange");
+sky.gradient.addColorStop(1,"lightblue");
 
 var platformColors = {
 	status: "day",
@@ -686,7 +694,7 @@ function updateSun() {
 	sun.yPosition += sun.timer;
 	
 // if the sun is beyond y = 2000, put it back above the screen and put the size back to normal. This is basically resetting the sun. Only the top half of the gradient is set to day to give the impression of the morning breaking.
-	if (sun.yPosition > 2000) {
+	if (sun.yPosition > 1400) {
 		sun.yPosition = -300;
 		sun.sizeStart = 10;
 		sun.sizeEnd = 50;
@@ -703,17 +711,14 @@ function updateSun() {
 	}
 
 // put the gradient start point to the bottom of the screen before reaching y = 400, which will activate the sunset. This is so the gradient can be moved upward gradually as the sun sets. Changing this will have no effect at present as both top and bottom are set to "day".
-	//	if (sun.yPosition < 400 && sun.yPosition > 350 && sky.currentBottom.g > 0) {
-		//sky.currentBottom.g -= 3;
-	//}
 	if (sun.yPosition < 400 && sun.yPosition > 390) {
-		sky.colorStopPosition[0] = 1;
+		//sky.colorStopPosition[0] = 1;
 	}
 	
-// turn sunset on. Start gradually increasing the size of the sun, set the bottom half of the gradient to the sunset color, and move the gradient up the screen.
+// turn sunset on. Start gradually increasing the size of the sun, set the bottom half of the gradient to the sunset color
 	if (sun.yPosition >= 400) {
 		sky.status.platform = "sunset";
-		
+// choose a pink or orange sunset		
 		if (sky.sunsetStatus != "set") {
 			if (Math.floor(Math.random() * 2) === 0) {
 				sky.status.bottom = "sunsetOrange";
@@ -724,13 +729,14 @@ function updateSun() {
 			sky.sunsetStatus = "set";
 			sun.sizeStart += .1;
 			sun.sizeEnd += .1;
-			if (sky.colorStopPosition[0] > 0.01) {
-				sky.colorStopPosition[0] -= 0.005;
-			}
 		}
 	
+	if (sun.yPosition >= 600) {
+		sky.status.top = sky.status.bottom;	
+	}
+	
 // darkness begins to fall 	
-	if (sun.yPosition >= 800) {
+	if (sun.yPosition >= 700) {
 		sky.status.top = "night";
 	}
 
@@ -754,10 +760,10 @@ function updateSky() {
 // bottom half
 	for (var rgbCurrent in sky.currentBottom) {
 		if (sky.currentBottom[rgbCurrent] > sky[sky.status.bottom][rgbCurrent]) {
-			sky.currentBottom[rgbCurrent] -= 2;
+			sky.currentBottom[rgbCurrent] -= 1;
 		}	
 		if (sky.currentBottom[rgbCurrent] < sky[sky.status.bottom][rgbCurrent]) {
-			sky.currentBottom[rgbCurrent] += 2;
+			sky.currentBottom[rgbCurrent] += 1;
 		}	
 		if (sky.currentBottom[rgbCurrent] - sky[sky.status.bottom][rgbCurrent] === 1 || sky.currentBottom[rgbCurrent] - sky[sky.status.bottom][rgbCurrent] === -1) {
 			sky.currentBottom[rgbCurrent] = sky[sky.status.bottom][rgbCurrent];
@@ -766,10 +772,10 @@ function updateSky() {
 // top half
 	for (var rgbCurrent in sky.currentTop) {
 		if (sky.currentTop[rgbCurrent] > sky[sky.status.top][rgbCurrent]) {
-			sky.currentTop[rgbCurrent] -= 2;
+			sky.currentTop[rgbCurrent] -= 1;
 		}	
 		if (sky.currentTop[rgbCurrent] < sky[sky.status.top][rgbCurrent]) {
-			sky.currentTop[rgbCurrent] += 2;
+			sky.currentTop[rgbCurrent] += 1;
 		}	
 		if (sky.currentTop[rgbCurrent] - sky[sky.status.top][rgbCurrent] === 1 || sky.currentTop[rgbCurrent] - sky[sky.status.top][rgbCurrent] === -1) {
 			sky.currentTop[rgbCurrent] = sky[sky.status.top][rgbCurrent];
