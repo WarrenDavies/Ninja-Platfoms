@@ -22,6 +22,14 @@ height:600px;
 
 <script>
 
+// finish sunset
+// create a separate canvas for the background
+// only redraw canvas when it is changing
+// add sprites
+// make bad guys do something
+// add flying bad guys
+
+
 function init() {
 document.getElementById("canvas").focus();
 console.log("start");
@@ -312,11 +320,9 @@ function clear(c) {
 function drawCoins() {
 	theCoins.forEach(function(i, j){
 		c.beginPath();
-		c.save();
 		c.fillStyle = i.fill;
 		c.arc(i.x + (i.w / 2) - camera.x, i.y + (i.h / 2) - camera.y, i.w / 2, 0, 2 * Math.PI, false);
 		c.fill();
-		c.restore();
 		c.closePath();
 	});
 } 
@@ -346,6 +352,7 @@ function updatePlatformColors() {
 
 function drawPlatforms() {
 	updatePlatformColors();
+	var platformCounter = 0;
 	thePlatforms.forEach(function(i, j){
 			if ( i.y > camera.y - 50 && i.y < camera.y + camera.h + 50) {
 			c.beginPath();
@@ -416,13 +423,15 @@ function drawPlatforms() {
 			}
 			
 			c.closePath();
+			platformCounter++;
 		}
+	
 	});
 }
 
 function drawPlayer() {
 	c.beginPath();
-	c.save();
+	
 	c.strokeStyle = Player1.border;
 	c.fillStyle = Player1.fill;
 	c.lineWidth = 0;
@@ -432,21 +441,19 @@ function drawPlayer() {
 	
 	c.stroke();
 	c.fill();
-	c.restore();
+	
 	c.closePath();
 }
 
 function drawBadGuys() {
 	theBadGuys.forEach(function(i,j){
 		c.beginPath();
-		c.save();
 		c.fillStyle = i.fill;
 		c.lineWidth = 0;
 		c.strokeStyle = i.border;
 		c.rect(i.x - camera.x, i.y - camera.y, i.w, i.h);  
 		c.stroke();
 		c.fill();
-		c.restore();
 		c.closePath();
 	});
 }
@@ -595,7 +602,7 @@ function pushPlatforms() {
 }
 
 function drawHUD() {
-	c.fillStyle = "black";
+	c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
 	c.font = 'bold 28pt Calibri';
 	c.fillText("Coins:" + coinsCollected, 20, 30);
 
@@ -699,7 +706,7 @@ function updateSun() {
 	//	if (sun.yPosition < 400 && sun.yPosition > 350 && sky.currentBottom.g > 0) {
 		//sky.currentBottom.g -= 3;
 	//}
-	if (sun.yPosition < 400 && sun.yPosition > 490) {
+	if (sun.yPosition < 400 && sun.yPosition > 390) {
 		sky.colorStopPosition[0] = 1;
 	}
 	
@@ -718,7 +725,7 @@ function updateSun() {
 			sun.sizeStart += .1;
 			sun.sizeEnd += .1;
 			if (sky.colorStopPosition[0] > 0.01) {
-				sky.colorStopPosition[0] -= 0.01;
+				sky.colorStopPosition[0] -= 0.005;
 			}
 		}
 	
@@ -732,7 +739,7 @@ function updateSun() {
 		sky.status.bottom = "night";
 		sky.status.platform = "night";
 	}
-console.log(sun.yPosition);
+//console.log(sun.yPosition);
 	
 // update the sun object's radial gradient to reflect the above changes
 	sun.gradient = c.createRadialGradient(sun.xPosition + (sun.height / 2), sun.yPosition + (sun.width / 2), sun.sizeStart, sun.xPosition + (sun.height / 2),sun.yPosition + (sun.width / 2), sun.sizeEnd);
@@ -801,9 +808,24 @@ function drawBackground() {
 // drawing function / game loop//////
 /////////////////////////////////////
 /////////////////////////////////////
-
+var time = new Date();
+var counter = 49;
+var timeAtStart;
+var timeAtEnd;
+var timeTaken;
 function mainDraw(canvas, message) {
-
+/*
+counter++
+if (counter === 50) {
+	counter = 0;
+	var time = new Date();
+	timeAtEnd = time.getTime();
+	timeTaken = timeAtEnd - timeAtStart;
+	console.log("this loop of 50 frames took: " + timeTaken + "ms");
+	time = new Date();
+	timeAtStart = time.getTime();
+}
+*/
 
 updateSun();
 updateSky();
