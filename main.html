@@ -32,7 +32,6 @@ height:600px;
 // add the spikes that follow you up
 // every hundred platforms there's a speed chase
 
-
 function init() {
 document.getElementById("canvas").focus();
 console.log("start");
@@ -86,7 +85,7 @@ var theBullets = [];
 var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
-	xPosition: 300,
+	xPosition: 1000,
 	yPosition: 1200,
 	height: 200,
 	width: 200,
@@ -359,6 +358,36 @@ function updatePlatformColors() {
 	}
 }
 
+function drawRoundCornerRect(i, cornerSize, k) {
+
+	c.beginPath();
+	c.moveTo(i.x - k + cornerSize - camera.x, i.y - camera.y - k);
+	
+	c.lineTo(i.x + i.w + (k) - cornerSize - camera.x, i.y - camera.y - k);
+	
+	c.arc(i.x + i.w + (k) - camera.x - cornerSize, i.y - camera.y - k + cornerSize, cornerSize, 1.5*Math.PI, 2 * Math.PI);
+	
+	c.lineTo(i.x + i.w + (k) - camera.x, i.y + i.h - camera.y - k);
+	
+	c.arc(i.x + i.w + (k) - camera.x - cornerSize, i.y + i.h + (k ) - camera.y - cornerSize, cornerSize, 0, 0.5 * Math.PI);
+	
+	c.lineTo(i.x - k + cornerSize - camera.x, i.y + i.h + (k) - camera.y)
+	
+	c.arc(i.x - k + cornerSize - camera.x, i.y + i.h + (k) - camera.y - cornerSize, cornerSize, 0.5 * Math.PI, 1 * Math.PI);
+	
+	c.lineTo(i.x - k - camera.x, i.y - camera.y - k + cornerSize);
+	
+	c.arc(i.x - k + cornerSize - camera.x, i.y - (k) - camera.y + cornerSize, cornerSize, 1 * Math.PI, 1.5 * Math.PI);
+	//c.closePath();
+	
+	c.fill();
+	
+//c.fillRect(i.x - camera.x - k, i.y - camera.y - k, i.w + (k * 2), i.h + (k * 2));
+
+
+}
+
+
 function drawPlatforms() {
 	updatePlatformColors();
 	var platformCounter = 0;
@@ -403,14 +432,24 @@ function drawPlatforms() {
 					}
 					for (k = 0; k < neonTimer; k += 2) {
 					
-						c.shadowBlur = 8;
+						c.shadowBlur = 4;
 						c.shadowColor = "rgb(255,105,180)";
 						console.log("hereeeee " + k);
 						//c.lineWidth = k * 2;
 						c.fillStyle = "rgb(255,105,180,0.05)";
 						//c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ", 0.05)";
-						c.fillRect(i.x - camera.x - k, i.y - camera.y - k, i.w + (k * 2), i.h + (k * 2));
+						
+						
+						
+						//c.fillRect(i.x - camera.x - k, i.y - camera.y - k, i.w + (k * 2), i.h + (k * 2));
+						
+						//if (k === 6 ) {
+						drawRoundCornerRect(i, 10, k);
+						//}
+						
 						c.shadowBlur = 0;
+						
+						
 						
 						
 						//if (k === 18) { k -= 2 };
@@ -419,6 +458,7 @@ function drawPlatforms() {
 						//c.stroke();
 					}
 				}
+				c.lineWidth = 0;
 				c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b + ",0.9)";
 				c.fillRect(i.x - camera.x, i.y - camera.y, i.w, i.h);
 				c.globalCompositeOperation = "lighter";
