@@ -31,6 +31,7 @@ height:600px;
 // add variation to the types of platforms
 // add the spikes that follow you up
 // every hundred platforms there's a speed chase
+// put sun y positions that change sky status as properties in the sun object
 
 function init() {
 document.getElementById("canvas").focus();
@@ -85,7 +86,7 @@ var theBullets = [];
 var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
-	xPosition: 1000,
+	xPosition: 300,
 	yPosition: 1200,
 	height: 200,
 	width: 200,
@@ -741,7 +742,7 @@ function updateSun() {
 	sun.yPosition += sun.timer;
 	
 // if the sun is beyond y = 2000, put it back above the screen and put the size back to normal. This is basically resetting the sun. Only the top half of the gradient is set to day to give the impression of the morning breaking.
-	if (sun.yPosition > 1400) {
+	if (sun.yPosition > 1500) {
 		sun.yPosition = -300;
 		sun.sizeStart = 10;
 		sun.sizeEnd = 50;
@@ -788,7 +789,7 @@ function updateSun() {
 	}
 
 // darkness falls completely
-	if (sun.yPosition >= 1000) {
+	if (sun.yPosition >= 800) {
 		sky.status.bottom = "night";
 		sky.status.platform = "night";
 	}
