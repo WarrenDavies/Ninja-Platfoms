@@ -205,8 +205,9 @@ function pushBadGuy(platform) {
 		leftLimit: thePlatforms[platform].x,
 		rightLimit: thePlatforms[platform].x + thePlatforms[platform].w,
 		health: 3,
-		maxSpeed: 4,
+		maxSpeed: 1,
 		speed: 1,
+		acceleration: 0.05,
 		border:' red',
 		fill: 'red'
 	}); 
@@ -317,6 +318,8 @@ function Player() {
 	this.momentum = 'none';
 	this.fill = 'blue';
 	this.onPlatform = -1;
+	this.status = "idle";
+	this.reboundTimer = 0;
 }
 var Player1 = new Player();
 updateCamera();
@@ -416,7 +419,6 @@ function drawPlatforms() {
 						for (k = 0; k < neonTimer; k += 3) {
 							c.shadowBlur = 4;
 							c.shadowColor = "rgb(255,105,180)";
-							console.log("hereeeee " + k);
 							c.fillStyle = "rgb(255,105,180,0.05)";
 							drawRoundCornerRect(i, 20, k);
 							c.shadowBlur = 0;
@@ -454,6 +456,9 @@ function drawPlayer() {
 
 function updateBadGuys() {
 	theBadGuys.forEach(function(i,j){
+		if (i.speed < i.maxSpeed) {
+			i.speed += i.acceleration;
+		}
 		if (i.target === "left") {
 			if (i.x > i.leftLimit) {
 				i.x -= i.speed;
@@ -959,11 +964,12 @@ function updatePlayer(){
 	} 
 	
 	if (keys[83]) {
-		if (jumping) {
+		if (jumping && Player1.status != "rebound") {
 			jumping = false;
 		}
 	}
-	
+	console.log("jumped: " + jumped + ", jumppeed:" + Player1.jumpHeight * .75);
+	console.log(Player1.status);
 	if (jumping) {
 		Player1.jumpSpeed = 10;
 		
@@ -979,7 +985,6 @@ function updatePlayer(){
 		if (jumped > (Player1.jumpHeight * 1 )) {
 			Player1.jumpSpeed = 5;
 		}
-		// else 
 		if (jumped > (Player1.jumpHeight * 1.05 )) {
 			Player1.jumpSpeed = 4;
 		}
@@ -1023,6 +1028,35 @@ function updatePlayer(){
 		moveX = false;
 	}
 	
+	if (moveX || moveY) {
+		theBadGuys.forEach(function(i,j) {
+			if (collidesSpecific(Player1.x + Player1.speed, Player1.y + Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				console.log("bad guy collision");
+				if (Player1.x > i.x + i.w || Player1.x + Player1.w < i.x) {
+					console.log("bad guy side collision");
+					Player1.x = Player1.x + -(Player1.speed * 3);
+					Player1.speed = -(Player1.speed / 2);
+					i.speed = 0;
+				}
+				console.log(i.y + ", " + (Player1.y + Player1.h - 3));
+				if (Player1.y + Player1.h - 5 < i.y + 1) {
+					console.log("bad guy top collision");
+					Player1.y -= 5;
+					Player1.jumpSpeed = 8;
+					jumping = true;
+					Player1.status = "rebound";
+					jumped = Player1.jumpHeight * .75;
+					i.speed = 0;
+					//i.health -= 1;
+					if (i.health <= 0) {
+						theBadGuys.splice(j, 1);
+					}
+				}
+			}
+		});
+	}
+	
+	
 	if (moveX) {
 		Player1.x += Player1.speed;
 	}
@@ -1031,6 +1065,15 @@ function updatePlayer(){
 		Player1.y -= Player1.jumpSpeed;
 		if (Player1.onPlatform === -1) {
 			Player1.y += 4;
+		}
+	}
+	
+	if (Player1.status === "rebound") {
+		Player1.reboundTimer += 1;
+		if (Player1.reboundTimer > 50) {
+			Player1.status = "jumping";
+			jumping = true;
+			Player1.reboundTimer = 0;
 		}
 	}
 	
