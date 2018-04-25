@@ -858,24 +858,19 @@ drawBackground();
 
 
 // detect player movement
-playerMove();
+updatePlayer();
 updateCamera();
+updateBullets();
+updateBadGuys();
 
-// draw player, platform, bad guys, coins
 drawPlatforms();
+drawCoins();
+drawBullets();
+drawBadGuys();
 drawPlayer();
 
-// bullets
-updateBullets();
-drawBullets();
-
-// bad guys
-updateBadGuys();
-drawBadGuys();
-
-
 // coins
-drawCoins();
+
 checkCoinCollision();
 // check the player is on a platform
 //checkPlatform();
@@ -894,7 +889,7 @@ drawHUD();
 
 // key press detection
 
-function playerMove(){
+function updatePlayer(){
 	if (keys[65]) {
 		if (Player1.speed > -Player1.maxSpeed) {
 			if (Player1.speed > -3) {
