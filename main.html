@@ -213,6 +213,8 @@ function pushBadGuy(platform) {
 	}); 
 }
 
+
+ 
 function multipleCoinPush(x, y, coinsToPush) {
 	var distanceFromLeft = 30;
 	var spacer = 50;
@@ -294,7 +296,7 @@ thePlatforms.forEach(function(i, j) {
 		multipleCoinPush(i.x, i.y, 3);
 	}
 });
-
+pushBadGuy(0);
 jumpUp = new Image();
 jumpUp.src = 'jumpUP.png';
     
@@ -306,7 +308,7 @@ function updateCamera() {
 	
 	
 function Player() {
-	this.x = (WIDTH / 2) - 25;
+	this.x = (WIDTH / 2) - 100;
 	this.y = (HEIGHT / 2) - 25 + 500;
 	this.w = 50;
 	this.h = 50;
@@ -843,6 +845,8 @@ var counter = 49;
 var timeAtStart;
 var timeAtEnd;
 var timeTaken;
+
+console.log("##### start #####");
 function mainDraw(canvas, message) {
 /*
 counter++
@@ -957,7 +961,6 @@ function updatePlayer(){
 	});
 		
 	if (keys[87]){
-		console.log(Player1.onPlatform);
 		if (Player1.onPlatform > -1) {
 			jumping = true;
 		}
@@ -968,8 +971,7 @@ function updatePlayer(){
 			jumping = false;
 		}
 	}
-	console.log("jumped: " + jumped + ", jumppeed:" + Player1.jumpHeight * .75);
-	console.log(Player1.status);
+	
 	if (jumping) {
 		Player1.jumpSpeed = 10;
 		
@@ -1032,22 +1034,25 @@ function updatePlayer(){
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + Player1.speed, Player1.y + Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				console.log("bad guy collision");
-				if (Player1.x > i.x + i.w || Player1.x + Player1.w < i.x) {
+				if (Player1.x + 5 > i.x + i.w || Player1.x + Player1.w - 5 < i.x) {
 					console.log("bad guy side collision");
 					Player1.x = Player1.x + -(Player1.speed * 3);
 					Player1.speed = -(Player1.speed / 2);
 					i.speed = 0;
 				}
-				console.log(i.y + ", " + (Player1.y + Player1.h - 3));
+				console.log("1) Player1.y: " + Player1.y);
+				console.log("1) i.health: " + i.health);
 				if (Player1.y + Player1.h - 5 < i.y + 1) {
 					console.log("bad guy top collision");
-					Player1.y -= 5;
+					Player1.y -= (Player1.jumpSpeed + 8);
 					Player1.jumpSpeed = 8;
 					jumping = true;
 					Player1.status = "rebound";
 					jumped = Player1.jumpHeight * .75;
 					i.speed = 0;
-					//i.health -= 1;
+					i.health -= 1;
+					console.log("2) Player1.y: " + Player1.y);
+					console.log("2) i.health: " + i.health);
 					if (i.health <= 0) {
 						theBadGuys.splice(j, 1);
 					}
