@@ -22,12 +22,9 @@ height:600px;
 
 <script>
 
-// finish sunset
-// create a separate canvas for the background
-// only redraw canvas when it is changing
 // add sprites
-// make bad guys do something
-// add flying bad guys
+// make bad guys harm player
+// add flying / shooting bad guys
 // add variation to the types of platforms
 // add the spikes that follow you up
 // every hundred platforms there's a speed chase
@@ -209,7 +206,8 @@ function pushBadGuy(platform) {
 		speed: 1,
 		acceleration: 0.05,
 		border:' red',
-		fill: 'red'
+		fill: 'red',
+		justGotHitFromAbove: 'false',
 	}); 
 }
 
@@ -304,9 +302,6 @@ function updateCamera() {
 	camera.y = Player1.y + (Player1.h / 2) - (camera.h / 2);
 }
 
-
-	
-	
 function Player() {
 	this.x = (WIDTH / 2) - 100;
 	this.y = (HEIGHT / 2) - 25 + 500;
@@ -322,6 +317,10 @@ function Player() {
 	this.onPlatform = -1;
 	this.status = "idle";
 	this.reboundTimer = 0;
+	this.health = 3;
+	this.invincible = false;
+	this.invincibleTimer = 250;
+	this.invincibleTimeAfterDamage = 250;
 }
 var Player1 = new Player();
 updateCamera();
@@ -462,6 +461,23 @@ function updateBadGuys() {
 			i.speed += i.acceleration;
 		}
 		if (i.target === "left") {
+			var badGuySpeed = -i.speed;
+		} else {
+			var badGuySpeed = i.speed;
+		}
+		if (i.justGotHitFromAbove === false) {
+			if (collidesSpecific(i.x + i.speed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
+				Player1.speed += (badGuySpeed * 5);
+				if (Player1.invincible === false) {
+					Player1.health -= 1;
+					Player1.invincible = true;
+				}
+			}
+		}
+		if (i.justGotHitFromAbove === true) {
+			i.justGotHitFromAbove = false;
+		}
+		if (i.target === "left") {
 			if (i.x > i.leftLimit) {
 				i.x -= i.speed;
 			}
@@ -476,7 +492,7 @@ function updateBadGuys() {
 			if (i.x + i.w >= i.rightLimit) {
 				i.target = "left";
 			}			
-		}
+		}	
 	});
 }
 function drawBadGuys() {
@@ -899,6 +915,19 @@ drawHUD();
 // key press detection
 
 function updatePlayer(){
+
+	if (Player1.invincible === true) {
+		Player1.invincibleTimer -= 1;
+		c.fillText(100,100,Player1.invincibleTimer);
+		c.fill();
+		if (Player1.invincibleTimer === 0) {
+			Player1.invincible = false;
+			Player1.invincibleTimer = Player1.invincibleTimeAfterDamage;
+		}
+	}
+	
+	
+	
 	if (keys[65]) {
 		if (Player1.speed > -Player1.maxSpeed) {
 			if (Player1.speed > -3) {
@@ -1033,15 +1062,6 @@ function updatePlayer(){
 	if (moveX || moveY) {
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + Player1.speed, Player1.y + Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				console.log("bad guy collision");
-				if (Player1.x + 5 > i.x + i.w || Player1.x + Player1.w - 5 < i.x) {
-					console.log("bad guy side collision");
-					Player1.x = Player1.x + -(Player1.speed * 3);
-					Player1.speed = -(Player1.speed / 2);
-					i.speed = 0;
-				}
-				console.log("1) Player1.y: " + Player1.y);
-				console.log("1) i.health: " + i.health);
 				if (Player1.y + Player1.h - 5 < i.y + 1) {
 					console.log("bad guy top collision");
 					Player1.y -= (Player1.jumpSpeed + 8);
@@ -1055,6 +1075,15 @@ function updatePlayer(){
 					console.log("2) i.health: " + i.health);
 					if (i.health <= 0) {
 						theBadGuys.splice(j, 1);
+					}
+					i.justGotHitFromAbove = true;
+				}
+				if (i.justGotHitFromAbove === false) {
+					if (Player1.x + 5 > i.x + i.w || Player1.x + Player1.w - 5 < i.x) {
+						console.log("bad guy side collision");
+						Player1.x = Player1.x + -(Player1.speed * 3);
+						Player1.speed = -(Player1.speed / 2);
+						i.speed = 0;
 					}
 				}
 			}
