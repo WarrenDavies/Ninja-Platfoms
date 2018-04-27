@@ -66,7 +66,7 @@ var thePlatforms = [];
 var e = 0;
 var camera = {x: 0, y: 0, w: 800, h: 600};
 var tileSize = 50;
-
+const gravity = 4;
 
 var platformCollision = true;
 var onPlatform = true;
@@ -448,8 +448,7 @@ function drawPlayer() {
 
 
 	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);   
-	
-	c.stroke();
+
 	c.fill();
 	
 	c.closePath();
@@ -465,9 +464,12 @@ function updateBadGuys() {
 		} else {
 			var badGuySpeed = i.speed;
 		}
+		
 		if (i.justGotHitFromAbove === false) {
 			if (collidesSpecific(i.x + i.speed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
-				Player1.speed += (badGuySpeed * 5);
+				console.log("updateBadGuy");
+				console.log (i.y + ", " + (Player1.y + Player1.h));
+				//Player1.speed += (badGuySpeed * 5);
 				if (Player1.invincible === false) {
 					Player1.health -= 1;
 					Player1.invincible = true;
@@ -500,9 +502,7 @@ function drawBadGuys() {
 		c.beginPath();
 		c.fillStyle = i.fill;
 		c.lineWidth = 0;
-		c.strokeStyle = i.border;
 		c.rect(i.x - camera.x, i.y - camera.y, i.w, i.h);  
-		c.stroke();
 		c.fill();
 		c.closePath();
 	});
@@ -1061,22 +1061,22 @@ function updatePlayer(){
 	
 	if (moveX || moveY) {
 		theBadGuys.forEach(function(i,j) {
-			if (collidesSpecific(Player1.x + Player1.speed, Player1.y + Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				if (Player1.y + Player1.h - 5 < i.y + 1) {
-					console.log("bad guy top collision");
+			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed + gravity, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				if (Player1.y + Player1.h < i.y) {
+					console.log("updatePlayer: bad guy top collision");
+					console.log(i.y + ", " + (Player1.y + Player1.h));
 					Player1.y -= (Player1.jumpSpeed + 8);
 					Player1.jumpSpeed = 8;
 					jumping = true;
 					Player1.status = "rebound";
 					jumped = Player1.jumpHeight * .75;
 					i.speed = 0;
-					i.health -= 1;
-					console.log("2) Player1.y: " + Player1.y);
-					console.log("2) i.health: " + i.health);
+					i.justGotHitFromAbove = true;
+					//i.health -= 1;
 					if (i.health <= 0) {
 						theBadGuys.splice(j, 1);
 					}
-					i.justGotHitFromAbove = true;
+					
 				}
 				if (i.justGotHitFromAbove === false) {
 					if (Player1.x + 5 > i.x + i.w || Player1.x + Player1.w - 5 < i.x) {
@@ -1098,7 +1098,7 @@ function updatePlayer(){
 	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
 		if (Player1.onPlatform === -1) {
-			Player1.y += 4;
+			Player1.y += gravity;
 		}
 	}
 	
