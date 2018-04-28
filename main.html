@@ -207,7 +207,7 @@ function pushBadGuy(platform) {
 		acceleration: 0.05,
 		border:' red',
 		fill: 'red',
-		justGotHitFromAbove: 'false',
+		justGotHitFromAbove: false,
 	}); 
 }
 
@@ -464,12 +464,15 @@ function updateBadGuys() {
 		} else {
 			var badGuySpeed = i.speed;
 		}
-		
+		console.log("######");
+		console.log ((i.x + badGuySpeed) + ", " + i.y + ", " + i.w + ", " + i.h)
+	console.log (Player1.x + ", " + Player1.y + ", " + Player1.w + ", " + Player1.h);
 		if (i.justGotHitFromAbove === false) {
-			if (collidesSpecific(i.x + i.speed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
+			if (collidesSpecific(i.x + badGuySpeed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
 				console.log("updateBadGuy");
 				console.log (i.y + ", " + (Player1.y + Player1.h));
-				//Player1.speed += (badGuySpeed * 5);
+				Player1.speed += (badGuySpeed * 3);
+				i.speed = -(i.speed);
 				if (Player1.invincible === false) {
 					Player1.health -= 1;
 					Player1.invincible = true;
@@ -1061,7 +1064,7 @@ function updatePlayer(){
 	
 	if (moveX || moveY) {
 		theBadGuys.forEach(function(i,j) {
-			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+			if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				if (Player1.y + Player1.h < i.y) {
 					console.log("updatePlayer: bad guy top collision " + (Player1.jumpSpeed - gravity));
 					console.log(i.y + ", " + (Player1.y + Player1.h));
@@ -1078,8 +1081,9 @@ function updatePlayer(){
 					}
 					
 				}
+				console.log (i.justGotHitFromAbove);
 				if (i.justGotHitFromAbove === false) {
-					if (Player1.x + 5 > i.x + i.w || Player1.x + Player1.w - 5 < i.x) {
+					if (Player1.x + 1 > i.x + i.w || Player1.x + Player1.w - 1 < i.x) {
 						console.log("bad guy side collision");
 						Player1.x = Player1.x + -(Player1.speed * 3);
 						Player1.speed = -(Player1.speed / 2);
