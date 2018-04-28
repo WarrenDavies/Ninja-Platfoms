@@ -1061,9 +1061,9 @@ function updatePlayer(){
 	
 	if (moveX || moveY) {
 		theBadGuys.forEach(function(i,j) {
-			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed + gravity, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				if (Player1.y + Player1.h < i.y) {
-					console.log("updatePlayer: bad guy top collision");
+					console.log("updatePlayer: bad guy top collision " + (Player1.jumpSpeed - gravity));
 					console.log(i.y + ", " + (Player1.y + Player1.h));
 					Player1.y -= (Player1.jumpSpeed + 8);
 					Player1.jumpSpeed = 8;
