@@ -519,9 +519,6 @@ function drawPlayer() {
 	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
 	c.stroke();	
 	
-	console.log(Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex]);
-	
-	console.log(Player1.drawing[Player1.status].switchIndex);
 	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
 	
 	c.drawImage(Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex], Player1.x - camera.x - Player1.imageSizeOffset, Player1.y - camera.y - Player1.imageSizeOffset, Player1.w + (Player1.imageSizeOffset + 2), Player1.h + (Player1.imageSizeOffset));
@@ -603,23 +600,21 @@ function collidesSpecific(ax, ay, aw, ah, bx, by, bw, bh) {
 
 // collision detection between player and platforms
 function checkPlatform() {
-	var onPlatform = -1;
-	thePlatforms.forEach ( function(i, j) {
-		if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-			onPlatform = j;
-			jumped = 0;
-			jumping = false;
-			Player1.y = i.y - Player1.h;
-			if (Player1.speed === 0) {
-				if (i.x + i.w < Player1.x + (Player1.w / 2) || i.x > Player1.x + (Player1.w / 2) ) {
-					Player1.fill = 'orange';
-				} else {
-					Player1.fill = 'blue';
-				}
+	//var onPlatform = -1;
+	var onPlatform;
+	if (Player1.onPlatform === -1) {
+		thePlatforms.forEach ( function(i, j) {
+			if (collidesSpecific(Player1.x, Player1.y + Player1.jumpSpeed + gravity, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				console.log(j);
+				onPlatform = j;
+				jumped = 0;
+				jumping = false;
+				Player1.y = i.y - Player1.h;
 			}
-		}
-	});
+		});
+	}
 	if (onPlatform > -1) {
+		console.log("heree");
 		Player1.onPlatform = onPlatform;
 		if (Player1.onPlatform >= thePlatforms.length - 3) {
 			pushPlatforms();
@@ -992,8 +987,10 @@ drawHUD();
 // key press detection
 
 function updatePlayer(){
-	
+	console.log(Player1.onPlatform);
 	Player1.updatePlayerImage();
+	
+	
 	
 	if (Player1.invincible === true) {
 		Player1.invincibleTimer -= 1;
@@ -1047,8 +1044,6 @@ function updatePlayer(){
 	}
 	
 
-	
-	checkPlatform();
 	
 	
 		// check Platform collision
@@ -1140,6 +1135,13 @@ function updatePlayer(){
 	}
 	
 	if (moveX || moveY) {
+	
+		if (moveY) {
+			//if (Player1.onPlatform === -1) {
+				checkPlatform();
+			//}
+		}
+	
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				if (Player1.y + Player1.h < i.y) {
@@ -1179,6 +1181,7 @@ function updatePlayer(){
 	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
 		if (Player1.onPlatform === -1) {
+			console.log("here");
 			Player1.y += gravity;
 		}
 	}
