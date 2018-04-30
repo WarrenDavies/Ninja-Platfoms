@@ -84,13 +84,14 @@ var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
 var sun = {
 	xPosition: 300,
-	yPosition: 1200,
+	yPosition: -100,
 	height: 200,
 	width: 200,
 	sizeStart: 10,
 	sizeEnd: 50,
 	timer: 0.5,
 }
+
 sun.gradient = c.createRadialGradient(sun.xPosition + (sun.height / 2), sun.yPosition + (sun.width / 2), sun.sizeStart, sun.xPosition + (sun.height / 2),sun.yPosition + (sun.width / 2), sun.sizeEnd),
 sun.gradient.addColorStop(0,"yellow");
 sun.gradient.addColorStop(0.0035,"yellow");
@@ -295,8 +296,6 @@ thePlatforms.forEach(function(i, j) {
 	}
 });
 pushBadGuy(0);
-jumpUp = new Image();
-jumpUp.src = 'jumpUP.png';
     
 function updateCamera() {
 	camera.y = Player1.y + (Player1.h / 2) - (camera.h / 2);
@@ -305,8 +304,8 @@ function updateCamera() {
 function Player() {
 	this.x = (WIDTH / 2) - 100;
 	this.y = (HEIGHT / 2) - 25 + 500;
-	this.w = 50;
-	this.h = 50;
+	this.w = (29* 1.5);
+	this.h = (50 * 1.5);
 	this.maxSpeed = 6;
 	this.speed = 0;
 	this.jumpSpeed = 0;
@@ -321,10 +320,80 @@ function Player() {
 	this.invincible = false;
 	this.invincibleTimer = 250;
 	this.invincibleTimeAfterDamage = 250;
+	this.imageSizeOffset = 10;
+	this.drawing = {
+		idle: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			collisionAreas: {
+				w: 29,
+				h: 50,
+			},
+		},
+		run: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			collisionAreas: {
+				w: 37.6,
+				h: 52,
+			},
+		},
+		jump: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			collisionAreas: {
+				w: 50,
+				h: 54,
+			},
+		},
+	};
+	this.updatePlayerImage = function() {
+		this.drawing[this.status].switchTimer += 1;
+		if (Player1.status === "jump") {
+			if (Player1.jumpSpeed === 0) {
+				this.drawing[this.status].switchIndex = 9;
+			} else {
+				this.drawing[this.status].switchIndex = 10 - Player1.jumpSpeed;
+			}
+		} else {
+			if (this.drawing[this.status].switchTimer > 5) {
+				this.drawing[this.status].switchIndex += 1;
+				this.drawing[this.status].switchTimer = 0;
+			}	
+			if (this.drawing[this.status].switchIndex > (Player1.drawing[Player1.status].images.length - 1)) {
+				this.drawing[this.status].switchTimer = 0;
+				this.drawing[this.status].switchIndex = 0;
+			}
+		}
+		
+		
+	};
 }
 var Player1 = new Player();
 updateCamera();
-console.log(Player1);
+
+function loadPlayerImages() {
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.idle.images[i] = new Image();
+		Player1.drawing.idle.images[i].src = 'images/Idle__00' + i +'.png';
+	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.run.images[i] = new Image();
+		Player1.drawing.run.images[i].src = 'images/Run__00' + i +'.png';
+	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.jump.images[i] = new Image();
+		Player1.drawing.jump.images[i].src = 'images/Jump__00' + i +'.png';
+	}
+}
+loadPlayerImages();
+
+
+
+
 
 function clear(c) {
 	c.clearRect(0, 0, WIDTH, HEIGHT);
@@ -444,12 +513,20 @@ function drawPlayer() {
 	
 	c.strokeStyle = Player1.border;
 	c.fillStyle = Player1.fill;
-	c.lineWidth = 0;
+	c.lineWidth = 1;
 
-
-	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);   
-
-	c.fill();
+	
+	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	c.stroke();	
+	
+	console.log(Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex]);
+	
+	console.log(Player1.drawing[Player1.status].switchIndex);
+	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	
+	c.drawImage(Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex], Player1.x - camera.x - Player1.imageSizeOffset, Player1.y - camera.y - Player1.imageSizeOffset, Player1.w + (Player1.imageSizeOffset + 2), Player1.h + (Player1.imageSizeOffset));
+	
+	
 	
 	c.closePath();
 }
@@ -464,9 +541,6 @@ function updateBadGuys() {
 		} else {
 			var badGuySpeed = i.speed;
 		}
-		console.log("######");
-		console.log ((i.x + badGuySpeed) + ", " + i.y + ", " + i.w + ", " + i.h)
-	console.log (Player1.x + ", " + Player1.y + ", " + Player1.w + ", " + Player1.h);
 		if (i.justGotHitFromAbove === false) {
 			if (collidesSpecific(i.x + badGuySpeed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
 				console.log("updateBadGuy");
@@ -918,7 +992,9 @@ drawHUD();
 // key press detection
 
 function updatePlayer(){
-
+	
+	Player1.updatePlayerImage();
+	
 	if (Player1.invincible === true) {
 		Player1.invincibleTimer -= 1;
 		c.fillText(100,100,Player1.invincibleTimer);
@@ -995,6 +1071,7 @@ function updatePlayer(){
 	if (keys[87]){
 		if (Player1.onPlatform > -1) {
 			jumping = true;
+			Player1.status = "jump";
 		}
 	} 
 	
@@ -1109,11 +1186,28 @@ function updatePlayer(){
 	if (Player1.status === "rebound") {
 		Player1.reboundTimer += 1;
 		if (Player1.reboundTimer > 50) {
-			Player1.status = "jumping";
+			Player1.status = "jump";
 			jumping = true;
 			Player1.reboundTimer = 0;
 		}
 	}
+	
+	if (!jumping && Player1.speed === 0) {
+		Player1.status = "idle";
+		Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
+		Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+	}
+	if (Player1.onPlatform > -1 && Player1.speed != 0) {
+		Player1.status = "run";
+		Player1.w = Player1.drawing.run.collisionAreas.w * 1.5;
+		Player1.h = Player1.drawing.run.collisionAreas.h * 1.5;
+	}
+	if (Player1.onPlatform === -1 || jumping) {
+		Player1.status = "jump";
+		Player1.w = Player1.drawing.run.collisionAreas.w * 1.5;
+		Player1.h = Player1.drawing.run.collisionAreas.h * 1.5;
+	}
+	
 	
 	return false;
 }
