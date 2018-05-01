@@ -377,6 +377,24 @@ function Player() {
 			offsetX: 13,
 			offsetY: 18,
 		},
+		rebound: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 0,
+			collisionAreas: {
+				w: 25,
+				h: 52,
+			},
+			imageAreas: {
+				x: 20,
+				y: 20,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
 		standThrow: {
 			images: [],
 			switchIndex: 0,
@@ -416,11 +434,11 @@ function Player() {
 	};
 	this.updatePlayerImage = function() {
 		this.drawing[this.status].switchTimer += 1;
-		if (Player1.status === "jump") {
+		if (Player1.status === "jump" || Player1.status === "rebound") {
 			if (Player1.jumpSpeed === 0) {
-				this.drawing[this.status].switchIndex = 9;
+				this.drawing["jump"].switchIndex = 9;
 			} else {
-				this.drawing[this.status].switchIndex = 10 - Player1.jumpSpeed;
+				this.drawing["jump"].switchIndex = 10 - Player1.jumpSpeed;
 			}
 		} else {
 			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
@@ -601,7 +619,11 @@ function drawPlayer() {
 		
 		c.save();
 		
-		
+	var currentStatus = Player1.status;
+	if (currentStatus === "rebound") {
+		currentStatus = "jump";
+	}
+	
 	if (Player1.facing === "left") {
 		c.translate(Player1.x - camera.x + Player1.w, 
 		Player1.y - camera.y);
@@ -611,11 +633,11 @@ function drawPlayer() {
 		Player1.y - camera.y);
 	}
 		c.drawImage(
-		Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex], 
-		0 - Player1.drawing[Player1.status].imageAreas.x, 
-		0 - Player1.drawing[Player1.status].imageAreas.y, 
-		Player1.drawing[Player1.status].imageAreas.w,
-		Player1.drawing[Player1.status].imageAreas.h);
+		Player1.drawing[currentStatus].images[Player1.drawing[currentStatus].switchIndex], 
+		0 - Player1.drawing[currentStatus].imageAreas.x, 
+		0 - Player1.drawing[currentStatus].imageAreas.y, 
+		Player1.drawing[currentStatus].imageAreas.w,
+		Player1.drawing[currentStatus].imageAreas.h);
 		
 		c.restore();
 	
@@ -1184,7 +1206,9 @@ function updatePlayer(){
 	if (keys[87]){
 		if (Player1.onPlatform > -1) {
 			jumping = true;
-			Player1.status = "jump";
+			if (Player1.status != "rebound") {
+				Player1.status = "jump";
+			}
 		}
 	} 
 	
@@ -1306,7 +1330,7 @@ function updatePlayer(){
 	
 	if (Player1.status === "rebound") {
 		Player1.reboundTimer += 1;
-		if (Player1.reboundTimer > 50) {
+		if (Player1.reboundTimer > 250) {
 			Player1.status = "jump";
 			jumping = true;
 			Player1.reboundTimer = 0;
@@ -1337,9 +1361,11 @@ function updatePlayer(){
 				Player1.status = "jump";
 			}
 		} else {
-			Player1.status = "jump";
-			Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
-			Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+			if (Player1.status != "rebound") {
+				Player1.status = "jump";
+				Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
+				Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+			}
 		}
 	
 	
