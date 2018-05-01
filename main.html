@@ -308,6 +308,7 @@ function Player() {
 	this.h = (50 * 1.5);
 	this.maxSpeed = 6;
 	this.speed = 0;
+	this.facing = "right";
 	this.jumpSpeed = 0;
 	this.maxJumpSpeed = 6;
 	this.jumpHeight = 500;
@@ -326,28 +327,91 @@ function Player() {
 			images: [],
 			switchIndex: 0,
 			switchTimer: 0,
+			switchTarget: 5,
 			collisionAreas: {
 				w: 29,
-				h: 50,
+				h: 52,
 			},
+			imageAreas: {
+				x: 10,
+				y: 22,
+				w: 58,
+				h: 100,
+			},
+			offsetX: 10,
+			offsetY: 10,
 		},
 		run: {
 			images: [],
 			switchIndex: 0,
 			switchTimer: 0,
+			switchTarget: 2,
 			collisionAreas: {
-				w: 37.6,
+				w: 35,
 				h: 52,
 			},
+			imageAreas: {
+				x: 10,
+				y: 18,
+				w: 70,
+				h: 100,
+			},
+			offsetX: 10,
+			offsetY: 16,
 		},
 		jump: {
 			images: [],
 			switchIndex: 0,
 			switchTimer: 0,
+			switchTarget: 0,
 			collisionAreas: {
-				w: 50,
-				h: 54,
+				w: 25,
+				h: 52,
 			},
+			imageAreas: {
+				x: 20,
+				y: 20,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		standThrow: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 25,
+				h: 52,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		jumpThrow: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 25,
+				h: 52,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
 		},
 	};
 	this.updatePlayerImage = function() {
@@ -359,7 +423,7 @@ function Player() {
 				this.drawing[this.status].switchIndex = 10 - Player1.jumpSpeed;
 			}
 		} else {
-			if (this.drawing[this.status].switchTimer > 5) {
+			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
 				this.drawing[this.status].switchIndex += 1;
 				this.drawing[this.status].switchTimer = 0;
 			}	
@@ -387,6 +451,10 @@ function loadPlayerImages() {
 	for (i = 0; i < 10; i++) {
 		Player1.drawing.jump.images[i] = new Image();
 		Player1.drawing.jump.images[i].src = 'images/Jump__00' + i +'.png';
+	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.standThrow.images[i] = new Image();
+		Player1.drawing.standThrow.images[i].src = 'images/Throw__00' + i +'.png';
 	}
 }
 loadPlayerImages();
@@ -520,10 +588,38 @@ function drawPlayer() {
 	c.stroke();	
 	
 	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	console.log(Player1.status);
+	console.log(Player1.onPlatform);
+	console.log(Player1.y);
+	console.log(Player1.h);
+	console.log(jumping);
 	
-	c.drawImage(Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex], Player1.x - camera.x - Player1.imageSizeOffset, Player1.y - camera.y - Player1.imageSizeOffset, Player1.w + (Player1.imageSizeOffset + 2), Player1.h + (Player1.imageSizeOffset));
+	if (Player1.status === "jump") {
+		var jumpOffset = Player1.drawing[Player1.status].offsetX + 0;
+	} else {
+		var jumpOffset = 0;
+	}
 	
 	
+		c.save();
+		
+		
+	if (Player1.facing === "left") {
+		c.translate(Player1.x - camera.x + Player1.w, 
+		Player1.y - camera.y);
+		c.scale(-1, 1);
+	}	else {
+		c.translate(Player1.x - camera.x, 
+		Player1.y - camera.y);
+	}
+		c.drawImage(
+		Player1.drawing[Player1.status].images[Player1.drawing[Player1.status].switchIndex], 
+		0 - Player1.drawing[Player1.status].imageAreas.x, 
+		0 - Player1.drawing[Player1.status].imageAreas.y, 
+		Player1.drawing[Player1.status].imageAreas.w,
+		Player1.drawing[Player1.status].imageAreas.h);
+		
+		c.restore();
 	
 	c.closePath();
 }
@@ -600,21 +696,20 @@ function collidesSpecific(ax, ay, aw, ah, bx, by, bw, bh) {
 
 // collision detection between player and platforms
 function checkPlatform() {
-	//var onPlatform = -1;
-	var onPlatform;
-	if (Player1.onPlatform === -1) {
+	var onPlatform = -1;
+	//var onPlatform;
+	//if (Player1.onPlatform === -1) {
 		thePlatforms.forEach ( function(i, j) {
-			if (collidesSpecific(Player1.x, Player1.y + Player1.jumpSpeed + gravity, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				console.log(j);
+			if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				console.log("ggg");
 				onPlatform = j;
 				jumped = 0;
 				jumping = false;
 				Player1.y = i.y - Player1.h;
 			}
 		});
-	}
+	//}
 	if (onPlatform > -1) {
-		console.log("heree");
 		Player1.onPlatform = onPlatform;
 		if (Player1.onPlatform >= thePlatforms.length - 3) {
 			pushPlatforms();
@@ -742,6 +837,16 @@ function checkCoinCollision() {
 }
 
 function createBullet(targetX, targetY, shooterX, shooterY) {
+	if (Player1.status === "idle" || Player1.status === "jump") {
+		Player1.status = "standThrow";
+		Player1.drawing.standThrow.switchIndex = 0;
+		Player1.drawing.standThrow.switchTimer = 0;
+		if (targetX > Player1.x + (Player1.w / 2)) {
+			Player1.facing = "right";
+		} else {
+			Player1.facing = "left";
+		}
+	}
 	var deltaX = targetX - shooterX;
 	var deltaY = targetY - shooterY;
 	var angle = Math.atan2(deltaY, deltaX);
@@ -789,6 +894,7 @@ function updateBullets() {
 function drawBullets() {
 	c.beginPath();
 	theBullets.forEach(function(i, j) {
+		c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
 		c.fillRect(i.x, i.y - camera.y, i.w, i.h, i.color);
 	});
 	if (theBullets[0]) {
@@ -953,7 +1059,6 @@ updateSun();
 updateSky();
 drawBackground();
 
-
 // detect player movement
 updatePlayer();
 updateCamera();
@@ -987,7 +1092,7 @@ drawHUD();
 // key press detection
 
 function updatePlayer(){
-	console.log(Player1.onPlatform);
+	
 	Player1.updatePlayerImage();
 	
 	
@@ -1015,6 +1120,7 @@ function updatePlayer(){
 		if (Player1.speed > 0) {
 			Player1.speed -= .2;
 		}
+		Player1.facing = "left";
 	}
 	
 	if (keys[68]) {
@@ -1028,6 +1134,7 @@ function updatePlayer(){
 		if (Player1.speed < 0) {
 			Player1.speed += .2;
 		}
+		Player1.facing = "right";
 	}
 	
 	if (!keys[68] && !keys[65]) {
@@ -1051,7 +1158,7 @@ function updatePlayer(){
 	thePlatforms.forEach ( function(i, j) {
 	if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 
-			console.log("Platform Collision");
+			//console.log("Platform Collision");
 			Player1.speed = 0;
 			
 			if (Player1.x < i.x + i.w && Player1.x + Player1.w > i.x) {
@@ -1136,11 +1243,11 @@ function updatePlayer(){
 	
 	if (moveX || moveY) {
 	
-		if (moveY) {
+		//if (moveY) {
 			//if (Player1.onPlatform === -1) {
 				checkPlatform();
 			//}
-		}
+		//}
 	
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
@@ -1181,7 +1288,7 @@ function updatePlayer(){
 	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
 		if (Player1.onPlatform === -1) {
-			console.log("here");
+			//console.log("here!!!!!!");
 			Player1.y += gravity;
 		}
 	}
@@ -1196,9 +1303,15 @@ function updatePlayer(){
 	}
 	
 	if (!jumping && Player1.speed === 0) {
-		Player1.status = "idle";
-		Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
-		Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+		if (Player1.status === "standThrow") {
+			if (Player1.drawing.standThrow.switchIndex === 8) {
+				Player1.status = "idle";
+			}
+		} else {
+			Player1.status = "idle";
+			Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
+			Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+		}
 	}
 	if (Player1.onPlatform > -1 && Player1.speed != 0) {
 		Player1.status = "run";
@@ -1207,8 +1320,8 @@ function updatePlayer(){
 	}
 	if (Player1.onPlatform === -1 || jumping) {
 		Player1.status = "jump";
-		Player1.w = Player1.drawing.run.collisionAreas.w * 1.5;
-		Player1.h = Player1.drawing.run.collisionAreas.h * 1.5;
+		Player1.w = Player1.drawing.jump.collisionAreas.w * 1.5;
+		Player1.h = Player1.drawing.jump.collisionAreas.h * 1.5;
 	}
 	
 	
