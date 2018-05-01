@@ -351,7 +351,7 @@ function Player() {
 				h: 52,
 			},
 			imageAreas: {
-				x: 10,
+				x: 12,
 				y: 18,
 				w: 70,
 				h: 100,
@@ -455,6 +455,10 @@ function loadPlayerImages() {
 	for (i = 0; i < 10; i++) {
 		Player1.drawing.standThrow.images[i] = new Image();
 		Player1.drawing.standThrow.images[i].src = 'images/Throw__00' + i +'.png';
+	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.jumpThrow.images[i] = new Image();
+		Player1.drawing.jumpThrow.images[i].src = 'images/Jump_Throw__00' + i +'.png';
 	}
 }
 loadPlayerImages();
@@ -594,13 +598,7 @@ function drawPlayer() {
 	console.log(Player1.h);
 	console.log(jumping);
 	
-	if (Player1.status === "jump") {
-		var jumpOffset = Player1.drawing[Player1.status].offsetX + 0;
-	} else {
-		var jumpOffset = 0;
-	}
-	
-	
+		
 		c.save();
 		
 		
@@ -837,7 +835,7 @@ function checkCoinCollision() {
 }
 
 function createBullet(targetX, targetY, shooterX, shooterY) {
-	if (Player1.status === "idle" || Player1.status === "jump") {
+	if (Player1.status === "idle") {
 		Player1.status = "standThrow";
 		Player1.drawing.standThrow.switchIndex = 0;
 		Player1.drawing.standThrow.switchTimer = 0;
@@ -847,6 +845,19 @@ function createBullet(targetX, targetY, shooterX, shooterY) {
 			Player1.facing = "left";
 		}
 	}
+	
+	if (Player1.status === "jump") {
+		Player1.status = "jumpThrow";
+		Player1.drawing.jumpThrow.switchIndex = 0;
+		Player1.drawing.jumpThrow.switchTimer = 0;
+		if (targetX > Player1.x + (Player1.w / 2)) {
+			Player1.facing = "right";
+		} else {
+			Player1.facing = "left";
+		}
+	}
+	
+	
 	var deltaX = targetX - shooterX;
 	var deltaY = targetY - shooterY;
 	var angle = Math.atan2(deltaY, deltaX);
@@ -1319,9 +1330,19 @@ function updatePlayer(){
 		Player1.h = Player1.drawing.run.collisionAreas.h * 1.5;
 	}
 	if (Player1.onPlatform === -1 || jumping) {
-		Player1.status = "jump";
-		Player1.w = Player1.drawing.jump.collisionAreas.w * 1.5;
-		Player1.h = Player1.drawing.jump.collisionAreas.h * 1.5;
+		if (Player1.status === "jumpThrow") {
+			if (Player1.drawing.jumpThrow.switchIndex === 8) {
+				Player1.status = "jump";
+			}
+		} else {
+			Player1.status = "jump";
+			Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
+			Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+		}
+	
+	
+	
+		
 	}
 	
 	
