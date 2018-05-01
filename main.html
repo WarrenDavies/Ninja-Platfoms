@@ -22,13 +22,12 @@ height:600px;
 
 <script>
 
-// add sprites
+// bad guy sprites
 // make bad guys harm player
-// add flying / shooting bad guys
-// add variation to the types of platforms
+// death sequence
+// title screen 
+// image credits
 // add the spikes that follow you up
-// every hundred platforms there's a speed chase
-// put sun y positions that change sky status as properties in the sun object
 
 function init() {
 document.getElementById("canvas").focus();
@@ -82,6 +81,165 @@ var spliced = 0;
 var theBullets = [];
 var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
+
+function Player() {
+	this.x = (WIDTH / 2) - 100;
+	this.y = (HEIGHT / 2) - 25 + 500;
+	this.w = 45;
+	this.h = 75;
+	this.maxSpeed = 6;
+	this.speed = 0;
+	this.facing = "right";
+	this.jumpSpeed = 0;
+	this.maxJumpSpeed = 6;
+	this.jumpHeight = 500;
+	this.momentum = 'none';
+	this.fill = 'blue';
+	this.onPlatform = -1;
+	this.status = "idle";
+	this.reboundTimer = 0;
+	this.health = 3;
+	this.invincible = false;
+	this.invincibleTimer = 250;
+	this.invincibleTimeAfterDamage = 250;
+	this.imageSizeOffset = 10;
+	this.drawing = {
+		idle: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 5,
+			collisionAreas: {
+				w: 45,
+				h: 75,
+			},
+			imageAreas: {
+				x: 10,
+				y: 22,
+				w: 58,
+				h: 100,
+			},
+			offsetX: 10,
+			offsetY: 10,
+		},
+		run: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 2,
+			collisionAreas: {
+				w: 52,
+				h: 75,
+			},
+			imageAreas: {
+				x: 12,
+				y: 18,
+				w: 70,
+				h: 100,
+			},
+			offsetX: 10,
+			offsetY: 16,
+		},
+		jump: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 0,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 20,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		rebound: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 0,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 20,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		standThrow: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		jumpThrow: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+	};
+	this.updatePlayerImage = function() {
+		this.drawing[this.status].switchTimer += 1;
+		if (Player1.status === "jump" || Player1.status === "rebound") {
+			if (Player1.jumpSpeed === 0) {
+				this.drawing["jump"].switchIndex = 9;
+			} else {
+				this.drawing["jump"].switchIndex = 10 - Player1.jumpSpeed;
+			}
+		} else {
+			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
+				this.drawing[this.status].switchIndex += 1;
+				this.drawing[this.status].switchTimer = 0;
+			}	
+			if (this.drawing[this.status].switchIndex > (Player1.drawing[Player1.status].images.length - 1)) {
+				this.drawing[this.status].switchTimer = 0;
+				this.drawing[this.status].switchIndex = 0;
+			}
+		}
+		
+		
+	};
+}
+var Player1 = new Player();
+updateCamera();
+
+
+
 var sun = {
 	xPosition: 300,
 	yPosition: -100,
@@ -202,7 +360,7 @@ function pushBadGuy(platform) {
 		target: "left",
 		leftLimit: thePlatforms[platform].x,
 		rightLimit: thePlatforms[platform].x + thePlatforms[platform].w,
-		health: 3,
+		health: 3 + (Math.floor(-Player1.y / 1000)),
 		maxSpeed: 1,
 		speed: 1,
 		acceleration: 0.05,
@@ -301,161 +459,7 @@ function updateCamera() {
 	camera.y = Player1.y + (Player1.h / 2) - (camera.h / 2);
 }
 
-function Player() {
-	this.x = (WIDTH / 2) - 100;
-	this.y = (HEIGHT / 2) - 25 + 500;
-	this.w = (29* 1.5);
-	this.h = (50 * 1.5);
-	this.maxSpeed = 6;
-	this.speed = 0;
-	this.facing = "right";
-	this.jumpSpeed = 0;
-	this.maxJumpSpeed = 6;
-	this.jumpHeight = 500;
-	this.momentum = 'none';
-	this.fill = 'blue';
-	this.onPlatform = -1;
-	this.status = "idle";
-	this.reboundTimer = 0;
-	this.health = 3;
-	this.invincible = false;
-	this.invincibleTimer = 250;
-	this.invincibleTimeAfterDamage = 250;
-	this.imageSizeOffset = 10;
-	this.drawing = {
-		idle: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 5,
-			collisionAreas: {
-				w: 29,
-				h: 52,
-			},
-			imageAreas: {
-				x: 10,
-				y: 22,
-				w: 58,
-				h: 100,
-			},
-			offsetX: 10,
-			offsetY: 10,
-		},
-		run: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 2,
-			collisionAreas: {
-				w: 35,
-				h: 52,
-			},
-			imageAreas: {
-				x: 12,
-				y: 18,
-				w: 70,
-				h: 100,
-			},
-			offsetX: 10,
-			offsetY: 16,
-		},
-		jump: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 0,
-			collisionAreas: {
-				w: 25,
-				h: 52,
-			},
-			imageAreas: {
-				x: 20,
-				y: 20,
-				w: 80,
-				h: 110,
-			},
-			offsetX: 13,
-			offsetY: 18,
-		},
-		rebound: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 0,
-			collisionAreas: {
-				w: 25,
-				h: 52,
-			},
-			imageAreas: {
-				x: 20,
-				y: 20,
-				w: 80,
-				h: 110,
-			},
-			offsetX: 13,
-			offsetY: 18,
-		},
-		standThrow: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 1,
-			collisionAreas: {
-				w: 25,
-				h: 52,
-			},
-			imageAreas: {
-				x: 20,
-				y: 30,
-				w: 80,
-				h: 110,
-			},
-			offsetX: 13,
-			offsetY: 18,
-		},
-		jumpThrow: {
-			images: [],
-			switchIndex: 0,
-			switchTimer: 0,
-			switchTarget: 1,
-			collisionAreas: {
-				w: 25,
-				h: 52,
-			},
-			imageAreas: {
-				x: 20,
-				y: 30,
-				w: 80,
-				h: 110,
-			},
-			offsetX: 13,
-			offsetY: 18,
-		},
-	};
-	this.updatePlayerImage = function() {
-		this.drawing[this.status].switchTimer += 1;
-		if (Player1.status === "jump" || Player1.status === "rebound") {
-			if (Player1.jumpSpeed === 0) {
-				this.drawing["jump"].switchIndex = 9;
-			} else {
-				this.drawing["jump"].switchIndex = 10 - Player1.jumpSpeed;
-			}
-		} else {
-			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
-				this.drawing[this.status].switchIndex += 1;
-				this.drawing[this.status].switchTimer = 0;
-			}	
-			if (this.drawing[this.status].switchIndex > (Player1.drawing[Player1.status].images.length - 1)) {
-				this.drawing[this.status].switchTimer = 0;
-				this.drawing[this.status].switchIndex = 0;
-			}
-		}
-		
-		
-	};
-}
-var Player1 = new Player();
-updateCamera();
+
 
 function loadPlayerImages() {
 	for (i = 0; i < 10; i++) {
@@ -606,15 +610,11 @@ function drawPlayer() {
 	c.lineWidth = 1;
 
 	
-	//c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
-	//c.stroke();	
+	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	c.stroke();	
 	
 	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
-	console.log(Player1.status);
-	console.log(Player1.onPlatform);
-	console.log(Player1.y);
-	console.log(Player1.h);
-	console.log(jumping);
+	
 	
 		
 		c.save();
@@ -656,8 +656,6 @@ function updateBadGuys() {
 		}
 		if (i.justGotHitFromAbove === false) {
 			if (collidesSpecific(i.x + badGuySpeed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
-				console.log("updateBadGuy");
-				console.log (i.y + ", " + (Player1.y + Player1.h));
 				Player1.speed += (badGuySpeed * 3);
 				i.speed = -(i.speed);
 				if (Player1.invincible === false) {
@@ -721,7 +719,6 @@ function checkPlatform() {
 	//if (Player1.onPlatform === -1) {
 		thePlatforms.forEach ( function(i, j) {
 			if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				console.log("ggg");
 				onPlatform = j;
 				jumped = 0;
 				jumping = false;
@@ -787,7 +784,7 @@ var platformHeightRanges = {
 }
 var g = "left";
 var h = "right";
-console.log(platformHeightRanges[g][h].x);
+
 
 function getHeightRange() {
 	var currentTopPlatformHeight = thePlatforms[thePlatforms.length - 1].y;
@@ -805,7 +802,6 @@ function getHeightRange() {
 			targetPlatformLocation = "right";
 			break;
 	}
-	console.log(currentPlatformLocation);
 	return { 
 		x: platformHeightRanges[currentPlatformLocation][targetPlatformLocation].x,
 		y: thePlatforms[thePlatforms.length - 1].y - platformHeightRanges[currentPlatformLocation][targetPlatformLocation].y,
@@ -1287,8 +1283,6 @@ function updatePlayer(){
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				if (Player1.y + Player1.h < i.y) {
-					console.log("updatePlayer: bad guy top collision " + (Player1.jumpSpeed - gravity));
-					console.log(i.y + ", " + (Player1.y + Player1.h));
 					Player1.y -= (Player1.jumpSpeed + 8);
 					Player1.jumpSpeed = 8;
 					jumping = true;
@@ -1296,13 +1290,13 @@ function updatePlayer(){
 					jumped = Player1.jumpHeight * .75;
 					i.speed = 0;
 					i.justGotHitFromAbove = true;
-					//i.health -= 1;
+					i.health -= 5;
 					if (i.health <= 0) {
 						theBadGuys.splice(j, 1);
 					}
 					
 				}
-				console.log (i.justGotHitFromAbove);
+			
 				if (i.justGotHitFromAbove === false) {
 					if (Player1.x + 1 > i.x + i.w || Player1.x + Player1.w - 1 < i.x) {
 						console.log("bad guy side collision");
@@ -1345,15 +1339,15 @@ function updatePlayer(){
 		} else {
 			if (!keys[65] && !keys[68]) {
 				Player1.status = "idle";
-				Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
-				Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+				Player1.w = Player1.drawing.idle.collisionAreas.w;
+				Player1.h = Player1.drawing.idle.collisionAreas.h;
 			}
 		}
 	}
 	if (Player1.onPlatform > -1 && Player1.speed != 0) {
 		Player1.status = "run";
-		Player1.w = Player1.drawing.run.collisionAreas.w * 1.5;
-		Player1.h = Player1.drawing.run.collisionAreas.h * 1.5;
+		Player1.w = Player1.drawing.run.collisionAreas.w;
+		Player1.h = Player1.drawing.run.collisionAreas.h;
 	}
 	if (Player1.onPlatform === -1 || jumping) {
 		if (Player1.status === "jumpThrow") {
@@ -1363,8 +1357,8 @@ function updatePlayer(){
 		} else {
 			if (Player1.status != "rebound") {
 				Player1.status = "jump";
-				Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
-				Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+				Player1.w = Player1.drawing.idle.collisionAreas.w;
+				Player1.h = Player1.drawing.idle.collisionAreas.h;
 			}
 		}
 	
