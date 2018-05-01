@@ -588,8 +588,8 @@ function drawPlayer() {
 	c.lineWidth = 1;
 
 	
-	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
-	c.stroke();	
+	//c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	//c.stroke();	
 	
 	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
 	console.log(Player1.status);
@@ -1319,9 +1319,11 @@ function updatePlayer(){
 				Player1.status = "idle";
 			}
 		} else {
-			Player1.status = "idle";
-			Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
-			Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+			if (!keys[65] && !keys[68]) {
+				Player1.status = "idle";
+				Player1.w = Player1.drawing.idle.collisionAreas.w * 1.5;
+				Player1.h = Player1.drawing.idle.collisionAreas.h * 1.5;
+			}
 		}
 	}
 	if (Player1.onPlatform > -1 && Player1.speed != 0) {
