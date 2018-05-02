@@ -23,7 +23,7 @@ height:600px;
 <script>
 
 // bad guy sprites
-// make bad guys harm player
+// make bad guys harm player -  invincible when hit
 // death sequence
 // title screen 
 // image credits
@@ -67,14 +67,13 @@ var camera = {x: 0, y: 0, w: 800, h: 600};
 var tileSize = 50;
 const gravity = 4;
 
-var platformCollision = true;
+
 var onPlatform = true;
 var jumping = false;
 var jumped = 0;
 var moveY = false;
 var moveX = false;
 var moved = false;
-var platformCollision = false;
 var theCoins = [];
 var coinsCollected = 0;
 var spliced = 0;
@@ -114,8 +113,8 @@ function Player() {
 				h: 75,
 			},
 			imageAreas: {
-				x: 10,
-				y: 22,
+				x: 12,
+				y: 25,
 				w: 58,
 				h: 100,
 			},
@@ -133,7 +132,7 @@ function Player() {
 			},
 			imageAreas: {
 				x: 12,
-				y: 18,
+				y: 21,
 				w: 70,
 				h: 100,
 			},
@@ -195,6 +194,24 @@ function Player() {
 			offsetY: 18,
 		},
 		jumpThrow: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 80,
+				h: 110,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
+		runThrow: {
 			images: [],
 			switchIndex: 0,
 			switchTimer: 0,
@@ -482,6 +499,10 @@ function loadPlayerImages() {
 		Player1.drawing.jumpThrow.images[i] = new Image();
 		Player1.drawing.jumpThrow.images[i].src = 'images/Jump_Throw__00' + i +'.png';
 	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.runThrow.images[i] = Player1.drawing.jumpThrow.images[i];
+	}
+	
 }
 loadPlayerImages();
 
@@ -714,26 +735,41 @@ function collidesSpecific(ax, ay, aw, ah, bx, by, bw, bh) {
 
 // collision detection between player and platforms
 function checkPlatform() {
-	var onPlatform = -1;
-	//var onPlatform;
-	//if (Player1.onPlatform === -1) {
+	//var onPlatform = -1;
+	var onPlatform;
+	if (Player1.onPlatform > -1) {
+		if (Player1.x > thePlatforms[Player1.onPlatform].x + thePlatforms[Player1.onPlatform].h || Player1.x + Player1.h < thePlatforms[Player1.onPlatform].x) {
+			Player1.onPlatform = -1;
+		}
+	}
+	
+	if (Player1.onPlatform === -1) {
 		thePlatforms.forEach ( function(i, j) {
 			if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				console.log ("Platform Collision" + Player1.onPlatform + " " + j);
 				onPlatform = j;
+				Player1.onPlatform = j;
 				jumped = 0;
 				jumping = false;
 				Player1.y = i.y - Player1.h;
 			}
 		});
-	//}
-	if (onPlatform > -1) {
-		Player1.onPlatform = onPlatform;
-		if (Player1.onPlatform >= thePlatforms.length - 3) {
-			pushPlatforms();
-		}
-	} else {
-		Player1.onPlatform = -1;
+		thePlatforms.forEach ( function(i, j) {
+			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
+				console.log("Platform Collision + speed should be side");
+				Player1.speed = 0;
+				if (Player1.x < i.x + i.w && Player1.x + Player1.w > i.x) {
+					Player1.jumpSpeed = 0;
+					jumping = false;
+				}
+			}
+		});
 	}
+	
+
+	
+	
+	
 }
 
 
@@ -868,6 +904,17 @@ function createBullet(targetX, targetY, shooterX, shooterY) {
 		Player1.status = "jumpThrow";
 		Player1.drawing.jumpThrow.switchIndex = 0;
 		Player1.drawing.jumpThrow.switchTimer = 0;
+		if (targetX > Player1.x + (Player1.w / 2)) {
+			Player1.facing = "right";
+		} else {
+			Player1.facing = "left";
+		}
+	}
+	
+	if (Player1.status === "run") {
+		Player1.status = "runThrow";
+		Player1.drawing.runThrow.switchIndex = 0;
+		Player1.drawing.runThrow.switchTimer = 0;
 		if (targetX > Player1.x + (Player1.w / 2)) {
 			Player1.facing = "right";
 		} else {
@@ -1071,6 +1118,10 @@ var timeTaken;
 
 console.log("##### start #####");
 function mainDraw(canvas, message) {
+
+console.log(Player1.status);
+
+
 /*
 counter++
 if (counter === 50) {
@@ -1149,7 +1200,9 @@ function updatePlayer(){
 		if (Player1.speed > 0) {
 			Player1.speed -= .2;
 		}
-		Player1.facing = "left";
+		if (Player1.status != "runThrow" && Player1.status != "jumpThrow" ) {
+			Player1.facing = "left";
+		}
 	}
 	
 	if (keys[68]) {
@@ -1163,7 +1216,9 @@ function updatePlayer(){
 		if (Player1.speed < 0) {
 			Player1.speed += .2;
 		}
-		Player1.facing = "right";
+		if (Player1.status != "runThrow" && Player1.status != "jumpThrow") {
+			Player1.facing = "right";
+		}
 	}
 	
 	if (!keys[68] && !keys[65]) {
@@ -1183,25 +1238,12 @@ function updatePlayer(){
 	
 	
 		// check Platform collision
-	platformCollision = false;
-	thePlatforms.forEach ( function(i, j) {
-	if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-
-			//console.log("Platform Collision");
-			Player1.speed = 0;
-			
-			if (Player1.x < i.x + i.w && Player1.x + Player1.w > i.x) {
-				Player1.jumpSpeed = 0;
-				jumping = false;
-				platformCollision = true;
-			}
-		}
 	
-	});
 		
 	if (keys[87]){
 		if (Player1.onPlatform > -1) {
 			jumping = true;
+			Player1.onPlatform = -1;
 			if (Player1.status != "rebound") {
 				Player1.status = "jump";
 			}
@@ -1274,20 +1316,27 @@ function updatePlayer(){
 	
 	if (moveX || moveY) {
 	
-		//if (moveY) {
-			//if (Player1.onPlatform === -1) {
-				checkPlatform();
-			//}
-		//}
+		if (Player1.y <= thePlatforms[thePlatforms.length - 1].y + (camera.h + 200)) {
+			pushPlatforms();
+		}
+	
+		checkPlatform();
+		
 	
 		theBadGuys.forEach(function(i,j) {
 			if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y - Player1.jumpSpeed + gravity + 1, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
 				if (Player1.y + Player1.h < i.y) {
 					Player1.y -= (Player1.jumpSpeed + 8);
-					Player1.jumpSpeed = 8;
+					if (keys[87]) {
+						Player1.jumpSpeed = 10;
+						jumped = Player1.jumpHeight *  .1;
+					} else {
+						Player1.jumpSpeed = 8;
+						jumped = Player1.jumpHeight * .75;
+					}
 					jumping = true;
 					Player1.status = "rebound";
-					jumped = Player1.jumpHeight * .75;
+					
 					i.speed = 0;
 					i.justGotHitFromAbove = true;
 					i.health -= 5;
@@ -1317,7 +1366,6 @@ function updatePlayer(){
 	if (moveY) {
 		Player1.y -= Player1.jumpSpeed;
 		if (Player1.onPlatform === -1) {
-			//console.log("here!!!!!!");
 			Player1.y += gravity;
 		}
 	}
@@ -1345,9 +1393,17 @@ function updatePlayer(){
 		}
 	}
 	if (Player1.onPlatform > -1 && Player1.speed != 0) {
-		Player1.status = "run";
-		Player1.w = Player1.drawing.run.collisionAreas.w;
-		Player1.h = Player1.drawing.run.collisionAreas.h;
+		if (Player1.status === "runThrow") {
+			if (Player1.drawing.runThrow.switchIndex === 8) {
+				Player1.status = "run";
+				Player1.w = Player1.drawing.run.collisionAreas.w;
+				Player1.h = Player1.drawing.run.collisionAreas.h;
+			}
+		} else {
+			Player1.status = "run";
+			Player1.w = Player1.drawing.run.collisionAreas.w;
+			Player1.h = Player1.drawing.run.collisionAreas.h;
+		}
 	}
 	if (Player1.onPlatform === -1 || jumping) {
 		if (Player1.status === "jumpThrow") {
