@@ -28,6 +28,7 @@ height:600px;
 // title screen 
 // image credits
 // add the spikes that follow you up
+// resize sprites and remove unneeded ones
 
 function init() {
 document.getElementById("canvas").focus();
@@ -631,8 +632,8 @@ function drawPlayer() {
 	c.lineWidth = 1;
 
 	
-	c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
-	c.stroke();	
+	//c.rect(Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
+	//c.stroke();	
 	
 	//c.drawImage(Player1.drawing[Player1.status].images[0], Player1.x - camera.x, Player1.y - camera.y, Player1.w, Player1.h);
 	
