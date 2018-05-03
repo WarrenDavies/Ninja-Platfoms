@@ -507,7 +507,55 @@ function loadPlayerImages() {
 }
 loadPlayerImages();
 
+var badGuyTypes = [
+	{
+		type: "blueMonster",
+		walk: [],
+		hit: [],
+		facing: "left",
+	},
+	{
+		type: "greenMonster",
+		walk: [],
+		hit: [],
+		facing: "left",
+	},
+	{
+		type: "orangeMonster",
+		walk: [],
+		hit: [],
+		facing: "left",
+	},
+	{
+		type: "walkingMonster",
+		walk: [],
+		hit: [],
+		facing: "left",
+	},
+	
+];
 
+function loadBadGuyImages() {
+	badGuyTypes.forEach(function(k, l) {
+		console.log(k.type);
+		if (k.type != "walkingk") {
+			for (i = 1; i < 3; i++) {
+				k.walk[i - 1] = new Image();
+				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
+				k.hit[i - 1] = new Image();
+				k.hit[i - 1].src = 'images/' + k.type + i + '.png';
+			}
+		} else {
+			for (i = 1; i < 7; i++) {
+				k.walk[i - 1] = new Image();
+				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
+				k.hit[i - 1] = new Image();
+				k.hit[i - 1].src = 'images/' + k.type + i + '.png';
+			}
+		}
+	});
+}
+loadBadGuyImages();
 
 
 
