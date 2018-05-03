@@ -22,8 +22,6 @@ height:600px;
 
 <script>
 
-// bad guy sprites
-// make bad guys harm player -  invincible when hit
 // death sequence
 // title screen 
 // image credits
@@ -98,7 +96,7 @@ function Player() {
 	this.onPlatform = -1;
 	this.status = "idle";
 	this.reboundTimer = 0;
-	this.health = 3;
+	this.health = 1;
 	this.invincible = false;
 	this.invincibleTimer = 250;
 	this.invincibleTimeAfterDamage = 250;
@@ -230,6 +228,24 @@ function Player() {
 			offsetX: 13,
 			offsetY: 18,
 		},
+		dead: {
+			images: [],
+			switchIndex: 0,
+			switchTimer: 0,
+			switchTarget: 1,
+			collisionAreas: {
+				w: 33,
+				h: 75,
+			},
+			imageAreas: {
+				x: 20,
+				y: 30,
+				w: 110,
+				h: 120,
+			},
+			offsetX: 13,
+			offsetY: 18,
+		},
 	};
 	this.updatePlayerImage = function() {
 		this.drawing[this.status].switchTimer += 1;
@@ -239,7 +255,18 @@ function Player() {
 			} else {
 				this.drawing["jump"].switchIndex = 10 - Player1.jumpSpeed;
 			}
-		} else {
+		} else if (Player1.status === "dead") {
+			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
+				if (this.drawing[this.status].switchIndex < 9) {				
+					this.drawing[this.status].switchIndex += 1;
+					this.drawing[this.status].switchTimer = 0;
+				}
+			}	
+			if (this.drawing[this.status].switchIndex > (Player1.drawing[Player1.status].images.length - 1)) {
+				this.drawing[this.status].switchTimer = 0;
+				this.drawing[this.status].switchIndex = 0;
+			}
+		}else {
 			if (this.drawing[this.status].switchTimer > this.drawing[this.status].switchTarget) {
 				this.drawing[this.status].switchIndex += 1;
 				this.drawing[this.status].switchTimer = 0;
@@ -368,7 +395,63 @@ function badGuy() {
 	this.fill = 'blue';
 }
 
+var badGuyTypes = [
+	{
+		type: "blueMonster",
+		walk: [],
+		hit: [],
+	},
+	{
+		type: "greenMonster",
+		walk: [],
+		hit: [],
+	},
+	{
+		type: "orangeMonster",
+		walk: [],
+		hit: [],
+	},
+	{
+		type: "walkingMonster",
+		walk: [],
+		hit: [],
+	},
+	
+];
+
+function loadBadGuyImages() {
+	badGuyTypes.forEach(function(k, l) {
+		if (k.type === "walkingMonster") {
+			for (i = 1; i < 7; i++) {
+			console.log(2);
+				k.walk[i - 1] = new Image();
+				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
+				k.hit[i - 1] = new Image();
+				k.hit[i - 1].src = 'images/' + k.type + i + '.png';
+			}
+		} else {
+			for (i = 1; i < 3; i++) {
+			console.log(3);
+				k.walk[i - 1] = new Image();
+				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
+				k.hit[i - 1] = new Image();
+				k.hit[i - 1].src = 'images/' + k.type + "Hit" + i + '.png';
+			}
+		}
+	});
+}
+loadBadGuyImages();
+
+
 function pushBadGuy(platform) {
+	var monsterChooser = Math.floor(Math.random() * 3);
+	if (monsterChooser === 1) {
+		var offsetY = 5;
+		var imageH = 55
+	} else {
+		var offsetY = 10;
+		var imageH = 60;
+	}
 	theBadGuys.push({
 		x: thePlatforms[platform].x + (thePlatforms[platform].w / 2) - 25,
 		y: thePlatforms[platform].y - 50,
@@ -385,6 +468,18 @@ function pushBadGuy(platform) {
 		border:' red',
 		fill: 'red',
 		justGotHitFromAbove: false,
+		offsetX: 5,
+		offsetY: offsetY,
+		imageW: 60,
+		imageH: imageH,
+		imageTimer: 0,
+		imageTimerTarget: 10,
+		imageIndex: 0,
+		hitTimer: 0,
+		hitTimerTarget: 20,
+		status: "walk",
+		typeIndex: monsterChooser,
+		typeName: badGuyTypes[monsterChooser],
 	}); 
 }
 
@@ -503,59 +598,14 @@ function loadPlayerImages() {
 	for (i = 0; i < 10; i++) {
 		Player1.drawing.runThrow.images[i] = Player1.drawing.jumpThrow.images[i];
 	}
+	for (i = 0; i < 10; i++) {
+		Player1.drawing.dead.images[i] = new Image();
+		Player1.drawing.dead.images[i].src = 'images/Dead__00' + i +'.png';
+	}
 	
 }
 loadPlayerImages();
 
-var badGuyTypes = [
-	{
-		type: "blueMonster",
-		walk: [],
-		hit: [],
-		facing: "left",
-	},
-	{
-		type: "greenMonster",
-		walk: [],
-		hit: [],
-		facing: "left",
-	},
-	{
-		type: "orangeMonster",
-		walk: [],
-		hit: [],
-		facing: "left",
-	},
-	{
-		type: "walkingMonster",
-		walk: [],
-		hit: [],
-		facing: "left",
-	},
-	
-];
-
-function loadBadGuyImages() {
-	badGuyTypes.forEach(function(k, l) {
-		console.log(k.type);
-		if (k.type != "walkingk") {
-			for (i = 1; i < 3; i++) {
-				k.walk[i - 1] = new Image();
-				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
-				k.hit[i - 1] = new Image();
-				k.hit[i - 1].src = 'images/' + k.type + i + '.png';
-			}
-		} else {
-			for (i = 1; i < 7; i++) {
-				k.walk[i - 1] = new Image();
-				k.walk[i - 1].src = 'images/' + k.type + i + '.png';
-				k.hit[i - 1] = new Image();
-				k.hit[i - 1].src = 'images/' + k.type + i + '.png';
-			}
-		}
-	});
-}
-loadBadGuyImages();
 
 
 
@@ -702,13 +752,14 @@ function drawPlayer() {
 		c.translate(Player1.x - camera.x, 
 		Player1.y - camera.y);
 	}
-		c.drawImage(
-		Player1.drawing[currentStatus].images[Player1.drawing[currentStatus].switchIndex], 
-		0 - Player1.drawing[currentStatus].imageAreas.x, 
-		0 - Player1.drawing[currentStatus].imageAreas.y, 
-		Player1.drawing[currentStatus].imageAreas.w,
-		Player1.drawing[currentStatus].imageAreas.h);
-		
+		if (Player1.invincible === false || !(Player1.invincible === true && Player1.invincibleTimer % 4 === 0)) {
+			c.drawImage(
+			Player1.drawing[currentStatus].images[Player1.drawing[currentStatus].switchIndex], 
+			0 - Player1.drawing[currentStatus].imageAreas.x, 
+			0 - Player1.drawing[currentStatus].imageAreas.y, 
+			Player1.drawing[currentStatus].imageAreas.w,
+			Player1.drawing[currentStatus].imageAreas.h);
+		}
 		c.restore();
 	
 	c.closePath();
@@ -719,10 +770,12 @@ function updateBadGuys() {
 		if (i.speed < i.maxSpeed) {
 			i.speed += i.acceleration;
 		}
-		if (i.target === "left") {
-			var badGuySpeed = -i.speed;
-		} else {
-			var badGuySpeed = i.speed;
+		if (Player1.status != "dead") {
+			if (i.target === "left") {
+				var badGuySpeed = -i.speed;
+			} else {
+				var badGuySpeed = i.speed;
+			}
 		}
 		if (i.justGotHitFromAbove === false) {
 			if (collidesSpecific(i.x + badGuySpeed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
@@ -730,7 +783,11 @@ function updateBadGuys() {
 				i.speed = -(i.speed);
 				if (Player1.invincible === false) {
 					Player1.health -= 1;
-					Player1.invincible = true;
+					if (Player1.health < 1) {
+						Player1.status = "dead";
+					} else {
+						Player1.invincible = true;
+					}
 				}
 			}
 		}
@@ -752,7 +809,25 @@ function updateBadGuys() {
 			if (i.x + i.w >= i.rightLimit) {
 				i.target = "left";
 			}			
-		}	
+		}
+		if (i.status === "hit") {
+			i.hitTimer += 1;
+			if (i.hitTimer > i.hitTimerTarget) {
+				i.status = "walk";
+				i.hitTimer = 0;
+			}
+		}
+		
+		if (badGuyTypes[i.typeIndex][i.status].length > 1) {
+			i.imageTimer += 1;
+			if (i.imageTimer > i.imageTimerTarget) {
+				i.imageIndex += 1;
+				i.imageTimer = 0;
+				if (i.imageIndex > badGuyTypes[i.typeIndex][i.status].length - 1) {
+					i.imageIndex = 0;
+				}
+			}
+		}
 	});
 }
 function drawBadGuys() {
@@ -760,8 +835,28 @@ function drawBadGuys() {
 		c.beginPath();
 		c.fillStyle = i.fill;
 		c.lineWidth = 0;
-		c.rect(i.x - camera.x, i.y - camera.y, i.w, i.h);  
-		c.fill();
+		//c.rect(i.x - camera.x, i.y - camera.y, i.w, i.h); 
+		try {
+			if (i.target === "right") {
+				c.save();
+				c.translate(i.x - camera.x + i.w, i.y - camera.y);
+				c.scale(-1, 1);
+				c.drawImage(badGuyTypes[i.typeIndex][i.status][i.imageIndex], 0 - i.offsetX, 0 - i.offsetY, i.imageW, i.imageH);
+				c.restore();
+			} else {
+				c.drawImage(badGuyTypes[i.typeIndex][i.status][i.imageIndex], i.x - camera.x - i.offsetX, i.y - camera.y - i.offsetY, i.imageW, i.imageH);
+			}
+			
+		}
+		catch (e) {
+			console.log(e);
+			console.log(i.status + " " + i.typeIndex);
+			console.log(i.imageIndex);
+			console.log(i.imageTimer);
+			console.log( badGuyTypes[i.typeIndex][i.status].length);
+			
+		}
+		c.stroke();
 		c.closePath();
 	});
 }
@@ -795,7 +890,7 @@ function checkPlatform() {
 	if (Player1.onPlatform === -1) {
 		thePlatforms.forEach ( function(i, j) {
 			if (collidesSpecific(Player1.x, Player1.y + 3, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				console.log ("Platform Collision" + Player1.onPlatform + " " + j);
+				
 				onPlatform = j;
 				Player1.onPlatform = j;
 				jumped = 0;
@@ -922,8 +1017,13 @@ function pushPlatforms() {
 function drawHUD() {
 	c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
 	c.font = 'bold 28pt Calibri';
-	c.fillText("Coins:" + coinsCollected, 20, 30);
-
+	c.fillText("Coins: " + coinsCollected, 10, 30);	
+	c.fill();
+	if (Player1.health > 0) {
+		for (i = Player1.health; i > 0; i--) {
+			c.drawImage(Player1.drawing.idle.images[0], 800 - (i* 30), 3, 20, 30);
+		}
+	}
 }
 
 function checkCoinCollision() {
@@ -938,6 +1038,7 @@ function checkCoinCollision() {
 }
 
 function createBullet(targetX, targetY, shooterX, shooterY) {
+	
 	if (Player1.status === "idle") {
 		Player1.status = "standThrow";
 		Player1.drawing.standThrow.switchIndex = 0;
@@ -1000,6 +1101,7 @@ function updateBullets() {
 		theBadGuys.forEach(function(k, l) {
 			if (collidesObjects(i, k)) {
 				k.health -= i.power;
+				k.status = "hit";
 				theBullets.splice(j, 1);
 				if (k.health < 1) {
 					theBadGuys.splice(l, 1);
@@ -1166,10 +1268,8 @@ var timeAtEnd;
 var timeTaken;
 
 console.log("##### start #####");
+
 function mainDraw(canvas, message) {
-
-console.log(Player1.status);
-
 
 /*
 counter++
@@ -1189,7 +1289,11 @@ updateSky();
 drawBackground();
 
 // detect player movement
-updatePlayer();
+if (Player1.status != "dead") {
+	updatePlayer();
+} else {
+	Player1.updatePlayerImage();
+}
 updateCamera();
 updateBullets();
 updateBadGuys();
@@ -1385,7 +1489,7 @@ function updatePlayer(){
 					}
 					jumping = true;
 					Player1.status = "rebound";
-					
+					i.status = "hit";
 					i.speed = 0;
 					i.justGotHitFromAbove = true;
 					i.health -= 5;
@@ -1399,6 +1503,14 @@ function updatePlayer(){
 					if (Player1.x + 1 > i.x + i.w || Player1.x + Player1.w - 1 < i.x) {
 						console.log("bad guy side collision");
 						Player1.x = Player1.x + -(Player1.speed * 3);
+						if (Player1.invincible === false) {
+							Player1.health -= 1;
+							if (Player1.health < 1) {
+								Player1.status = "dead";
+							} else {
+								Player1.invincible = true;
+							}
+						}
 						Player1.speed = -(Player1.speed / 2);
 						i.speed = 0;
 					}
@@ -1407,71 +1519,71 @@ function updatePlayer(){
 		});
 	}
 	
-	
-	if (moveX) {
-		Player1.x += Player1.speed;
-	}
-	
-	if (moveY) {
-		Player1.y -= Player1.jumpSpeed;
-		if (Player1.onPlatform === -1) {
-			Player1.y += gravity;
+	if (Player1.status != "dead") {
+		if (moveX) {
+			Player1.x += Player1.speed;
 		}
-	}
-	
-	if (Player1.status === "rebound") {
-		Player1.reboundTimer += 1;
-		if (Player1.reboundTimer > 250) {
-			Player1.status = "jump";
-			jumping = true;
-			Player1.reboundTimer = 0;
-		}
-	}
-	
-	if (!jumping && Player1.speed === 0) {
-		if (Player1.status === "standThrow") {
-			if (Player1.drawing.standThrow.switchIndex === 8) {
-				Player1.status = "idle";
-			}
-		} else {
-			if (!keys[65] && !keys[68]) {
-				Player1.status = "idle";
-				Player1.w = Player1.drawing.idle.collisionAreas.w;
-				Player1.h = Player1.drawing.idle.collisionAreas.h;
+		
+		if (moveY) {
+			Player1.y -= Player1.jumpSpeed;
+			if (Player1.onPlatform === -1) {
+				Player1.y += gravity;
 			}
 		}
-	}
-	if (Player1.onPlatform > -1 && Player1.speed != 0) {
-		if (Player1.status === "runThrow") {
-			if (Player1.drawing.runThrow.switchIndex === 8) {
+		
+		if (Player1.status === "rebound") {
+			Player1.reboundTimer += 1;
+			if (Player1.reboundTimer > 250) {
+				Player1.status = "jump";
+				jumping = true;
+				Player1.reboundTimer = 0;
+			}
+		}
+		
+		if (!jumping && Player1.speed === 0) {
+			if (Player1.status === "standThrow") {
+				if (Player1.drawing.standThrow.switchIndex === 8) {
+					Player1.status = "idle";
+				}
+			} else {
+				if (!keys[65] && !keys[68]) {
+					Player1.status = "idle";
+					Player1.w = Player1.drawing.idle.collisionAreas.w;
+					Player1.h = Player1.drawing.idle.collisionAreas.h;
+				}
+			}
+		}
+		if (Player1.onPlatform > -1 && Player1.speed != 0) {
+			if (Player1.status === "runThrow") {
+				if (Player1.drawing.runThrow.switchIndex === 8) {
+					Player1.status = "run";
+					Player1.w = Player1.drawing.run.collisionAreas.w;
+					Player1.h = Player1.drawing.run.collisionAreas.h;
+				}
+			} else {
 				Player1.status = "run";
 				Player1.w = Player1.drawing.run.collisionAreas.w;
 				Player1.h = Player1.drawing.run.collisionAreas.h;
 			}
-		} else {
-			Player1.status = "run";
-			Player1.w = Player1.drawing.run.collisionAreas.w;
-			Player1.h = Player1.drawing.run.collisionAreas.h;
 		}
-	}
-	if (Player1.onPlatform === -1 || jumping) {
-		if (Player1.status === "jumpThrow") {
-			if (Player1.drawing.jumpThrow.switchIndex === 8) {
-				Player1.status = "jump";
+		if (Player1.onPlatform === -1 || jumping) {
+			if (Player1.status === "jumpThrow") {
+				if (Player1.drawing.jumpThrow.switchIndex === 8) {
+					Player1.status = "jump";
+				}
+			} else {
+				if (Player1.status != "rebound") {
+					Player1.status = "jump";
+					Player1.w = Player1.drawing.idle.collisionAreas.w;
+					Player1.h = Player1.drawing.idle.collisionAreas.h;
+				}
 			}
-		} else {
-			if (Player1.status != "rebound") {
-				Player1.status = "jump";
-				Player1.w = Player1.drawing.idle.collisionAreas.w;
-				Player1.h = Player1.drawing.idle.collisionAreas.h;
-			}
-		}
-	
-	
-	
 		
+		
+		
+			
+		}
 	}
-	
 	
 	return false;
 }
@@ -1499,7 +1611,9 @@ canvas.addEventListener("keyup", function (e) {
 canvas.addEventListener('mousemove', mouseMove, true);
 
 canvas.addEventListener("click", function() {
-	createBullet(mouse.x + camera.x, mouse.y + camera.y, Player1.x + (Player1.w / 2), Player1.y + (Player1.h / 2)  );
+	if (Player1.status != "dead") {
+		createBullet(mouse.x + camera.x, mouse.y + camera.y, Player1.x + (Player1.w / 2), Player1.y + (Player1.h / 2)  );
+	}
 });
 
 // Detect mouse movement and assign to mouseX, mouseY
