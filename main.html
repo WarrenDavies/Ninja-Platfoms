@@ -22,8 +22,6 @@ height:600px;
 
 <script>
 
-//walking enemy
-// restart game
 // add the spikes that follow you up
 // resize sprites and remove unneeded ones
 
@@ -98,7 +96,7 @@ function Player() {
 	this.onPlatform = -1;
 	this.status = "idle";
 	this.reboundTimer = 0;
-	this.health = 1;
+	this.health = 3;
 	this.invincible = false;
 	this.invincibleTimer = 250;
 	this.invincibleTimeAfterDamage = 250;
@@ -293,8 +291,8 @@ updateCamera();
 
 
 var sun = {
-	xPosition: 800,
-	yPosition: 390,
+	xPosition: 300,
+	yPosition: -300,
 	height: 200,
 	width: 200,
 	sizeStart: 10,
@@ -451,7 +449,7 @@ loadBadGuyImages();
 
 
 function pushBadGuy(platform) {
-	var monsterChooser = Math.floor(Math.random() * 3);
+	var monsterChooser = Math.floor(Math.random() * 4);
 	if (monsterChooser === 1) {
 		var offsetY = 5;
 		var imageH = 55
@@ -459,10 +457,15 @@ function pushBadGuy(platform) {
 		var offsetY = 10;
 		var imageH = 60;
 	}
+	if (monsterChooser === 3) {
+		var targetForImageChange = 5;
+	} else {
+		var targetForImageChange = 10;
+	}
 	theBadGuys.push({
 		x: thePlatforms[platform].x + (thePlatforms[platform].w / 2) - 25,
 		y: thePlatforms[platform].y - 50,
-		w: 50,
+		w: 30,
 		h: 50,
 		onPlatform: platform,
 		target: "left",
@@ -475,12 +478,12 @@ function pushBadGuy(platform) {
 		border:' red',
 		fill: 'red',
 		justGotHitFromAbove: false,
-		offsetX: 5,
+		offsetX: 15,
 		offsetY: offsetY,
 		imageW: 60,
 		imageH: imageH,
 		imageTimer: 0,
-		imageTimerTarget: 10,
+		imageTimerTarget: targetForImageChange,
 		imageIndex: 0,
 		hitTimer: 0,
 		hitTimerTarget: 20,
@@ -516,7 +519,7 @@ function multipleCoinPush(x, y, coinsToPush) {
 thePlatforms.push({
 	x:0,
 	y:830,
-	w:840,
+	w:800,
 	h:400,
 	type: "ground",
 	location: "left",
@@ -529,7 +532,7 @@ thePlatforms.push({
 thePlatforms.push({
 	x:0,
 	y:700,
-	w:200,
+	w:220,
 	h:30,
 	type: "ground",
 	location: "left",
@@ -557,7 +560,7 @@ thePlatforms.push({
 thePlatforms.push({
 	x:0,
 	y:400,
-	w:200,
+	w:220,
 	h:30,
 	type: "ground",
 	location: "left",
@@ -1016,7 +1019,7 @@ function pushPlatforms() {
 }
 
 function drawHUD() {
-	c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
+	c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b;
 	c.font = 'bold 28pt Calibri';
 	c.fillText("Coins: " + coinsCollected, 10, 30);	
 	c.fill();
@@ -1128,7 +1131,7 @@ function updateBullets() {
 function drawBullets() {
 	c.beginPath();
 	theBullets.forEach(function(i, j) {
-		c.fillStyle = "rgb(" + platformColors.currentTop.r + "," + platformColors.currentTop.g + "," + platformColors.currentTop.b;
+		c.fillStyle = "rgb(" + platformColors.current.r + "," + platformColors.current.g + "," + platformColors.current.b;
 		c.fillRect(i.x, i.y - camera.y, i.w, i.h, i.color);
 	});
 	if (theBullets[0]) {
@@ -1326,7 +1329,37 @@ function drawEndStats() {
 }
 
 function restartGame() {
-
+	camera.x = 0;
+	camera.y = 0;
+	thePlatforms.length = 3;
+	Player1.x = (WIDTH / 2) - 100;
+	Player1.y = (HEIGHT / 2) - 25 - 20 + 500;
+	Player1.onPlaform = -1;
+	Player1.startingY = Player1.y - 20;
+	Player1.maxHeight = Player1.startingY;
+	theCoins.splice(0);
+	theBadGuys.splice(0);
+	thePlatforms.length = 3;
+	coinsCollected = 0;
+	foundFinalRestingPlace = false;
+	
+	Player1.kills = 0;
+	Player1.speed = 0;
+	Player1.facing = "right";
+	Player1.grieveTimer = 0;
+	Player1.throws = 0;
+	Player1.throwHits = 0;
+	Player1.drawing.dead.switchIndex = 0;
+	Player1.drawing.dead.switchTimer = 0;
+	
+	thePlatforms.forEach(function(i, j) {
+		if (j != 0) {
+			multipleCoinPush(i.x, i.y, 3);
+		}
+	});
+	Player1.health = 3;
+	Player1.status = "idle";
+	pushBadGuy(0);
 }
 
 /////////////////////////////////////
@@ -1343,7 +1376,7 @@ var timeTaken;
 console.log("##### start #####");
 
 function mainDraw(canvas, message) {
-
+console.log(Player1.status);
 /*
 counter++
 if (counter === 50) {
