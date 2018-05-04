@@ -22,9 +22,8 @@ height:600px;
 
 <script>
 
-// death sequence
-// title screen 
-// image credits
+//walking enemy
+// restart game
 // add the spikes that follow you up
 // resize sprites and remove unneeded ones
 
@@ -79,10 +78,12 @@ var spliced = 0;
 var theBullets = [];
 var neonTimer = 0;
 var mouse = { x: 0, y: 0, };
-
+var foundFinalRestingPlace;
+var endStatsShowing = "stats";
 function Player() {
 	this.x = (WIDTH / 2) - 100;
 	this.y = (HEIGHT / 2) - 25 + 500;
+	this.startingY = this.y - 20;
 	this.w = 45;
 	this.h = 75;
 	this.maxSpeed = 6;
@@ -93,6 +94,7 @@ function Player() {
 	this.jumpHeight = 500;
 	this.momentum = 'none';
 	this.fill = 'blue';
+	this.kills = 0;
 	this.onPlatform = -1;
 	this.status = "idle";
 	this.reboundTimer = 0;
@@ -101,6 +103,11 @@ function Player() {
 	this.invincibleTimer = 250;
 	this.invincibleTimeAfterDamage = 250;
 	this.imageSizeOffset = 10;
+	this.grieveTimer = 0;
+	this.grieveTarget = 50;
+	this.maxHeight = this.startingY;
+	this.throws = 0;
+	this.throwHits = 0;
 	this.drawing = {
 		idle: {
 			images: [],
@@ -286,13 +293,13 @@ updateCamera();
 
 
 var sun = {
-	xPosition: 300,
-	yPosition: -100,
+	xPosition: 800,
+	yPosition: 390,
 	height: 200,
 	width: 200,
 	sizeStart: 10,
 	sizeEnd: 50,
-	timer: 0.5,
+	timer: 0.1,
 }
 
 sun.gradient = c.createRadialGradient(sun.xPosition + (sun.height / 2), sun.yPosition + (sun.width / 2), sun.sizeStart, sun.xPosition + (sun.height / 2),sun.yPosition + (sun.width / 2), sun.sizeEnd),
@@ -326,13 +333,13 @@ var sky = {
 	sunsetPink: {
 		r: 220,
 		g: 127,
-		b: 127,
+		b: 190,
 	},
 	sunsetStatus: "not set",
 	night: {
 		r: 19,
 		g: 24,
-		b: 98,
+		b: 190,
 	},
 	currentBottom: {
 		r: 51,
@@ -779,7 +786,7 @@ function updateBadGuys() {
 		}
 		if (i.justGotHitFromAbove === false) {
 			if (collidesSpecific(i.x + badGuySpeed, i.y, i.w, i.h, Player1.x, Player1.y, Player1.w, Player1.h)) {
-				Player1.speed += (badGuySpeed * 3);
+				Player1.speed += (badGuySpeed * 5);
 				i.speed = -(i.speed);
 				if (Player1.invincible === false) {
 					Player1.health -= 1;
@@ -900,7 +907,6 @@ function checkPlatform() {
 		});
 		thePlatforms.forEach ( function(i, j) {
 			if (collidesSpecific(Player1.x + Player1.speed, Player1.y - Player1.jumpSpeed, Player1.w, Player1.h, i.x, i.y, i.w, i.h)) {
-				console.log("Platform Collision + speed should be side");
 				Player1.speed = 0;
 				if (Player1.x < i.x + i.w && Player1.x + Player1.w > i.x) {
 					Player1.jumpSpeed = 0;
@@ -909,11 +915,6 @@ function checkPlatform() {
 			}
 		});
 	}
-	
-
-	
-	
-	
 }
 
 
@@ -1032,6 +1033,9 @@ function checkCoinCollision() {
 			if (collidesObjects(Player1, theCoins[j])) {
 				theCoins.splice(j, 1);
 				coinsCollected += 1;
+				if (coinsCollected % 100 === 0) {
+					Player1.health += 1;
+				}
 			}
 		}
 	}
@@ -1091,6 +1095,7 @@ function createBullet(targetX, targetY, shooterX, shooterY) {
 		yTarget: yTarget,
 		color: "black",
 	});
+	Player1.throws += 1;
 }
 
 function updateBullets() {
@@ -1102,9 +1107,11 @@ function updateBullets() {
 			if (collidesObjects(i, k)) {
 				k.health -= i.power;
 				k.status = "hit";
+				Player1.throwHits += 1;
 				theBullets.splice(j, 1);
 				if (k.health < 1) {
 					theBadGuys.splice(l, 1);
+					Player1.kills += 1;
 				}
 			}
 		});
@@ -1174,8 +1181,12 @@ function updateSun() {
 			}
 		}
 			sky.sunsetStatus = "set";
-			sun.sizeStart += .1;
-			sun.sizeEnd += .1;
+			if (sun.sizeStart < 40) {
+				sun.sizeStart += .1;
+			}
+			if (sun.sizeEnd < 80) {
+				sun.sizeEnd += .1;
+			}
 		}
 	
 	if (sun.yPosition >= 600) {
@@ -1252,9 +1263,71 @@ function drawBackground() {
 	c.fill();
 }
 
+function findFinalRestingPlace() {
+	Player1.updatePlayerImage();
+	foundFinalRestingPlace = false;
+	thePlatforms.forEach(function(i,j) {
+		if (collidesSpecific(Player1.x + (Player1.speed * 2), Player1.y + gravity + Player1.h, Player1.w, 2, i.x, i.y, i.w, i.h)) {
+			foundFinalRestingPlace = true;
+		}
+	});
+	if (!foundFinalRestingPlace) {
+		Player1.x += Player1.speed;
+		Player1.y += gravity;
+	}
+}
 
+function drawEndStats() {
+	if(keys[67]) {endStatsShowing = "credits"}
+	if(keys[83]) {endStatsShowing = "stats"}
+	if(keys[13]) {restartGame();}
+		c.fillStyle = "black";
+		c.strokeStyle = "red";
+		c.rect(200, 100, 400, 400);
+		c.rect(200, 540, 400, 30);
+		c.lineWidth = 1;
+		c.fill();
+		c.stroke();
+		c.fillStyle = "red";
+	if (endStatsShowing === "stats") {
+		c.fillText("You died :(", 310, 150);
+		c.fillText("Coins Collected: " + Math.round((coinsCollected / (coinsCollected + theCoins.length)) * 100 )  + "%" , 225, 225);
+		var heightReached = (Player1.maxHeight - Player1.startingY);
+		if (heightReached < 0) {
+			heightReached = -heightReached;
+		}
+		c.fillText("Max height: " + heightReached + " px", 225, 275);
+		c.fillText("Kills: " + Player1.kills, 225, 325);
+		c.fillText("Shurikens thrown: " + Player1.throws, 225, 375);
+		c.fillText("Shurikens hits: " + Player1.throwHits, 225, 425);
+		var accuracy = Math.round((Player1.throwHits / Player1.throws) * 100);
+		if (isNaN(accuracy)) {accuracy = 0;}
+		c.fillText("Accuracy: " + accuracy + "%", 225, 475);
+	}
+	if (endStatsShowing === "credits") {
+		c.fillText("Credits", 340, 150);
+		c.font = 'bold 20pt Calibri';
+		c.fillText("Coding: Warren Davies", 225, 200);
+		c.font = 'bold 16pt Calibri';
+		c.fillText("https://warrendaviesdev.com", 225, 250);
+		c.font = 'bold 20pt Calibri';
+		c.fillText("Images from opengameart.org", 225, 325);
+		c.drawImage(Player1.drawing.idle.images[0], 225, 350, 30, 50);
+		c.font = 'bold 16pt Calibri';
+		c.fillText("https://www.gameart2d.com", 280, 385);
+		for (i = 0; i < badGuyTypes.length; i++) {
+			c.drawImage(badGuyTypes[i].walk[0], 225 + (i * 33), 425 , 30, 30);
+		}
+		c.fillText("https://bevouliin.com/", 370, 447);
+	}
 
+	c.font = 'bold 16pt Calibri';
+	c.fillText("C for credits, S for stats, Enter to play again", 210, 561);
+}
 
+function restartGame() {
+
+}
 
 /////////////////////////////////////
 /////////////////////////////////////
@@ -1292,7 +1365,7 @@ drawBackground();
 if (Player1.status != "dead") {
 	updatePlayer();
 } else {
-	Player1.updatePlayerImage();
+	findFinalRestingPlace();
 }
 updateCamera();
 updateBullets();
@@ -1312,6 +1385,13 @@ checkCoinCollision();
 
 drawHUD();
 
+if (foundFinalRestingPlace) {
+	if (Player1.grieveTimer < Player1.grieveTarget) {
+		Player1.grieveTimer += 1;
+	} else {
+		drawEndStats();
+	}
+}
 
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -1495,18 +1575,19 @@ function updatePlayer(){
 					i.health -= 5;
 					if (i.health <= 0) {
 						theBadGuys.splice(j, 1);
+						Player1.kills += 1;
 					}
 					
 				}
 			
 				if (i.justGotHitFromAbove === false) {
 					if (Player1.x + 1 > i.x + i.w || Player1.x + Player1.w - 1 < i.x) {
-						console.log("bad guy side collision");
 						Player1.x = Player1.x + -(Player1.speed * 3);
 						if (Player1.invincible === false) {
 							Player1.health -= 1;
 							if (Player1.health < 1) {
 								Player1.status = "dead";
+								Player1.speed = -(Player1.speed / 2);
 							} else {
 								Player1.invincible = true;
 							}
@@ -1517,6 +1598,9 @@ function updatePlayer(){
 				}
 			}
 		});
+		if (Player1.y < Player1.maxHeight) {
+			Player1.maxHeight = Player1.y;
+		}
 	}
 	
 	if (Player1.status != "dead") {
