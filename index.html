@@ -1447,7 +1447,7 @@ function updatePlayer(){
 		}
 	}
 	
-	if (keys[65]) {
+	if (keys[65] || keys[37]) {
 		if (Player1.speed > -Player1.maxSpeed) {
 			if (Player1.speed > -3) {
 				Player1.speed -= .1;
@@ -1463,7 +1463,7 @@ function updatePlayer(){
 		}
 	}
 	
-	if (keys[68]) {
+	if (keys[68] || keys[39]) {
 		if (Player1.speed < Player1.maxSpeed) {
 			if (Player1.speed < 3) {
 				Player1.speed += .1;
@@ -1479,7 +1479,7 @@ function updatePlayer(){
 		}
 	}
 	
-	if (!keys[68] && !keys[65]) {
+	if (!keys[68] && !keys[65] && !keys[37] && !keys[39]) {
 		if (Player1.speed > 0) {
 			Player1.speed -= .1;
 		}
@@ -1492,7 +1492,7 @@ function updatePlayer(){
 		Player1.speed = 0;
 	}
 		
-	if (keys[87]){
+	if (keys[87] || keys[38]){
 		if (Player1.onPlatform > -1) {
 			jumping = true;
 			Player1.onPlatform = -1;
@@ -1502,7 +1502,7 @@ function updatePlayer(){
 		}
 	} 
 	
-	if (keys[83]) {
+	if (keys[83] || keys[40]) {
 		if (jumping && Player1.status != "rebound") {
 			jumping = false;
 		}
@@ -1567,7 +1567,7 @@ function updatePlayer(){
 			console.log(j);
 				if (Player1.y + Player1.h < i.y) {
 					Player1.y -= (Player1.jumpSpeed + 8);
-					if (keys[87]) {
+					if (keys[87] || keys[38]) {
 						Player1.jumpSpeed = 10;
 						jumped = Player1.jumpHeight *  .1;
 					} else {
@@ -1646,7 +1646,7 @@ function updatePlayer(){
 					Player1.status = "idle";
 				}
 			} else {
-				if (!keys[65] && !keys[68]) {
+				if (!keys[65] && !keys[68] && !keys[37] && !keys[39]) {
 					Player1.status = "idle";
 					Player1.w = Player1.drawing.idle.collisionAreas.w;
 					Player1.h = Player1.drawing.idle.collisionAreas.h;
@@ -1685,6 +1685,9 @@ function updatePlayer(){
 
 // event listeners
 canvas.addEventListener("keydown", function (e) {
+	if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
 	keys[e.keyCode] = true;
 });
 canvas.addEventListener("keyup", function (e) {
