@@ -17,15 +17,15 @@ That's it!
 
 Controls:
 
-w = jump 
-a  = left 
-s = drop while jumping
-d = right
-arrow keys = also work
+* w = jump 
+* a  = left 
+* s = drop while jumping
+* d = right
+* arrow keys = also work
 
-mouse = aim
-left click = shoot
-Warning = this game never ends!
+* mouse = aim
+* left click = shoot
+* Warning = this game never ends!
 
 ## Play it
 
