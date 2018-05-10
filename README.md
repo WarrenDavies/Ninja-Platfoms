@@ -1,7 +1,7 @@
 # Ninja-Platfoms
 A simple platform game
 
-##The Concept
+## The Concept
 
 This is a very simple yet relaxing climbing game. A ninja with an unusually large head climbs indefinitely up a gravity-defying series of platforms, collecting coins and killing beasts along the way.
 
@@ -13,7 +13,7 @@ Get as high as you can before you die.
 
 That's it!
 
-##How to Play
+## How to Play
 
 Controls:
 
@@ -27,7 +27,7 @@ mouse = aim
 left click = shoot
 Warning = this game never ends!
 
-##Play it
+## Play it
 
 Either download the files and play it locally, or head over to itch:
 
